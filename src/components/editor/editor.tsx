@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { checkSlug, publish } from "@/app/actions";
 import { PortfolioView } from "@/components/portfolio/portfolio-view";
 import { ShareSheet } from "@/components/share-sheet";
-import { SoloCreatorKit, SoloMark } from "@/components/solo-logo";
+import { SoloLogo, SoloMark } from "@/components/solo-logo";
 import { SAMPLE } from "@/lib/sample";
 import { resolveTheme } from "@/lib/themes";
 import type { Portfolio } from "@/lib/types";
@@ -209,8 +209,11 @@ export default function Editor() {
         {/* ───────── top bar ───────── */}
         <header className="ed-top flex h-14 shrink-0 items-center gap-3 border-b border-ui-line bg-ui-panel px-3 lg:px-4">
           <Link href="/" aria-label="Solo Creator Kit home" className="ui-press flex shrink-0 items-center">
-            <span className="hidden sm:inline-flex">
-              <SoloCreatorKit height={22} />
+            {/* solo wordmark + the 3D Creator Kit ribbon, side by side to fit the bar */}
+            <span className="logo-chip hidden items-center gap-1.5 sm:inline-flex">
+              <SoloLogo height={19} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo/12-imported-group-12.svg" alt="Creator Kit" width={284} height={178} className="h-10 w-auto" draggable={false} />
             </span>
             {/* phones: just the bolt mark, so the page address gets the room */}
             <SoloMark className="size-8 sm:hidden" />

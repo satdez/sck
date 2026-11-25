@@ -460,8 +460,8 @@ export function DesignPanel({ theme, glowSrc, onChange }: { theme: ThemeSettings
         }
       >
         {/* theme strip */}
-        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [mask-image:linear-gradient(90deg,transparent,#000_16px,#000_calc(100%-28px),transparent)]">
-          <div className="flex w-max gap-2 pb-1">
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [mask-image:linear-gradient(90deg,transparent,#000_10px,#000_calc(100%-28px),transparent)]">
+          <div className="flex w-max gap-2 py-1.5">
             {BACKDROPS.map((b) => {
               const active = r.backdrop.kind === b.kind;
               return (
