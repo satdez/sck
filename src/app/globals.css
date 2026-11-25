@@ -1,26 +1,605 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Two token families:
+ *  --ui-*  : the sck.bio app chrome (editor, landing). Neutral, follows OS theme.
+ *  --p-*   : the creator's portfolio. Set inline by <ThemeScope> from the preset.
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --ui-bg: #f7f7f6;
+  --ui-panel: #ffffff;
+  --ui-sunken: #f0f0ee;
+  --ui-ink: #19191b;
+  --ui-muted: #6e6e73;
+  --ui-line: #e6e5e2;
+  --ui-accent: #96ff43; /* Solo lime */
+  --ui-accent-ink: #0b0b0b;
+
+  /* motion — strong ease-out curves; UI transitions stay under 300ms */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --ui-bg: #0d0d0e;
+    --ui-panel: #151516;
+    --ui-sunken: #1c1c1e;
+    --ui-ink: #ededee;
+    --ui-muted: #8d8d93;
+    --ui-line: #262628;
+    --ui-accent: #96ff43;
+    --ui-accent-ink: #0b0b0b;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-ui-bg: var(--ui-bg);
+  --color-ui-panel: var(--ui-panel);
+  --color-ui-sunken: var(--ui-sunken);
+  --color-ui-ink: var(--ui-ink);
+  --color-ui-muted: var(--ui-muted);
+  --color-ui-line: var(--ui-line);
+  --color-ui-accent: var(--ui-accent);
+  --color-ui-accent-ink: var(--ui-accent-ink);
+
+  --color-page: var(--p-bg);
+  --color-surface: var(--p-surface);
+  --color-surface-2: var(--p-surface2);
+  --color-ink: var(--p-ink);
+  --color-muted: var(--p-muted);
+  --color-line: var(--p-line);
+  --color-accent: var(--p-accent);
+  --color-accent-ink: var(--p-accent-ink);
+
+  --font-sans: var(--f-inter), system-ui, sans-serif;
+  --font-heading: var(--f-gilroy), var(--f-inter), system-ui, sans-serif;
+  --font-display: var(--p-display);
+  --font-body: var(--p-body);
+  --font-mono: var(--f-mono), ui-monospace, monospace;
+  --radius-tile: var(--p-radius);
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--p-accent, var(--ui-accent));
+  outline-offset: 2px;
+}
+
+/* ───────────────── portfolio surface ───────────────── */
+
+.portfolio {
+  /* a word that can't fit its box (long handles, brand names) wraps instead of spilling out */
+  overflow-wrap: anywhere;
+  background-color: var(--p-bg);
+  color: var(--p-ink);
+  font-family: var(--p-body);
+  min-height: 100%;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ── backdrops (Luma-style). Markup: components/portfolio/backdrop.tsx.
+   Mode-dependent knobs (--bd-*) come from ThemeScope, so "Auto" display is pure CSS. ── */
+.bd {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: clip; /* clip, not hidden: keeps .bd-viewport's sticky working */
+}
+/* one screen tall, pinned while the page scrolls; animated layers live here */
+.bd-viewport {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  /* --bd-vh: set by a scaled preview (phone frame) whose screen is taller than the browser */
+  height: min(var(--bd-vh, 100lvh), 100%);
+  overflow: hidden;
+  container-type: size;
+}
+
+/* quantum: tonal colour fields (three tints of ONE hue), slow and soft */
+.bd-q > span {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.bd-q-drift .bd-q-a { width: max(80%, 560px); aspect-ratio: 1; left: -25%; top: -20%; background: radial-gradient(closest-side, var(--p-t1), transparent); animation: bd-drift-a 26s ease-in-out infinite alternate; }
+.bd-q-drift .bd-q-b { width: max(70%, 480px); aspect-ratio: 1; right: -22%; top: 12%; background: radial-gradient(closest-side, var(--p-t2), transparent); animation: bd-drift-b 31s ease-in-out infinite alternate; }
+.bd-q-drift .bd-q-c { width: max(75%, 520px); aspect-ratio: 1; left: 5%; bottom: -35%; background: radial-gradient(closest-side, var(--p-t3), transparent); animation: bd-drift-c 37s ease-in-out infinite alternate; }
+@keyframes bd-drift-a { to { transform: translate3d(14%, 10%, 0) scale(1.1); } }
+@keyframes bd-drift-b { to { transform: translate3d(-12%, 14%, 0) scale(0.92); } }
+@keyframes bd-drift-c { to { transform: translate3d(10%, -14%, 0) scale(1.08); } }
+
+/* halo: a slowly turning ring of tints, like light through glass */
+.bd-q-halo .bd-q-a {
+  width: max(120%, 900px);
+  aspect-ratio: 1;
+  left: 50%;
+  top: -55%;
+  translate: -50% 0;
+  background: conic-gradient(from 0deg, var(--p-t1), var(--p-t2), var(--p-t3), var(--p-t1));
+  /* a ring, not a disc: hides the conic gradient's pinch point at the centre */
+  -webkit-mask-image: radial-gradient(closest-side, transparent 10%, #000 38%, #000 50%, transparent 74%);
+  mask-image: radial-gradient(closest-side, transparent 10%, #000 38%, #000 50%, transparent 74%);
+  opacity: 0.9;
+  animation: bd-spin 60s linear infinite;
+}
+.bd-q-halo .bd-q-b { inset: auto 0 -30% 0; height: 60%; border-radius: 0; background: radial-gradient(60% 60% at 50% 100%, var(--p-t2), transparent 70%); opacity: 0.6; }
+@keyframes bd-spin { to { transform: rotate(1turn); } }
+
+/* curtain: vertical aurora bands swaying sideways */
+.bd-q-curtain > span { top: -10%; height: 120%; }
+.bd-q-curtain .bd-q-a { left: 5%; width: 34%; background: radial-gradient(50% 50% at 50% 40%, var(--p-t1), transparent); animation: bd-sway-a 19s ease-in-out infinite alternate; }
+.bd-q-curtain .bd-q-b { left: 36%; width: 30%; background: radial-gradient(50% 50% at 50% 55%, var(--p-t2), transparent); animation: bd-sway-b 23s ease-in-out infinite alternate; }
+.bd-q-curtain .bd-q-c { left: 64%; width: 36%; background: radial-gradient(50% 50% at 50% 35%, var(--p-t3), transparent); animation: bd-sway-a 29s ease-in-out infinite alternate-reverse; }
+@keyframes bd-sway-a { to { transform: translate3d(18%, 0, 0) scaleY(1.08); } }
+@keyframes bd-sway-b { to { transform: translate3d(-22%, 0, 0) scaleY(0.94); } }
+
+/* ambient: the creator's banner as light */
+.bd-glow {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 760px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 30%, transparent);
+  mask-image: linear-gradient(#000 30%, transparent);
+}
+.bd-glow-img,
+.bd-wash {
+  position: absolute;
+  inset: -15%;
+  background-size: cover;
+  background-position: center;
+  filter: var(--bd-glow-filter);
+  opacity: var(--bd-glow-op);
+}
+.bd-wash { inset: -20%; opacity: calc(var(--bd-glow-op) + 0.15); animation: bd-breathe 18s ease-in-out infinite alternate; }
+.bd-wash-veil { position: absolute; inset: 0; background: linear-gradient(transparent 30%, var(--p-bg) 140%); }
+@keyframes bd-breathe { to { transform: scale(1.12) rotate(2deg); } }
+.bd-glow-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 70% at 20% 0%, var(--p-t2), transparent 70%),
+    radial-gradient(60% 70% at 85% 10%, var(--p-t1), transparent 70%);
+}
+
+/* texture: printed-matter surfaces (static) */
+.bd-texture { position: absolute; inset: 0; }
+.bd-tx-paper {
+  background:
+    var(--bd-grain-img),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.012 .09' numOctaves='4' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  mix-blend-mode: var(--bd-grain-blend);
+  opacity: calc(var(--bd-grain-op) * 1.3);
+}
+.bd-tx-grain { background-image: var(--bd-grain-img); mix-blend-mode: var(--bd-grain-blend); opacity: calc(var(--bd-grain-op) * 1.6); }
+.bd-tx-linen {
+  background:
+    repeating-linear-gradient(0deg, color-mix(in oklab, var(--p-ink) 5%, transparent) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, color-mix(in oklab, var(--p-ink) 4%, transparent) 0 1px, transparent 1px 4px),
+    var(--bd-grain-img);
+}
+.bd-tx-halftone {
+  background-image: radial-gradient(color-mix(in oklab, var(--p-accent) 55%, transparent) 1.3px, transparent 1.6px);
+  background-size: 9px 9px;
+  -webkit-mask-image: radial-gradient(120% 90% at 100% 0%, #000 0%, transparent 60%);
+  mask-image: radial-gradient(120% 90% at 100% 0%, #000 0%, transparent 60%);
+  opacity: 0.55;
+}
+.bd-tx-blueprint {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--p-ink) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--p-ink) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in oklab, var(--p-ink) 4.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--p-ink) 4.5%, transparent) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  background-position: -1px -1px;
+}
+
+/* pattern: hairline repeat in the ink colour, panning one tile sideways (seamless) */
+.bd-pattern {
+  position: absolute;
+  inset: 0 0 0 calc(-1 * var(--bd-size));
+  background: var(--p-ink);
+  opacity: var(--bd-op);
+  -webkit-mask-image: var(--bd-mask);
+  mask-image: var(--bd-mask);
+  -webkit-mask-size: var(--bd-size) auto;
+  mask-size: var(--bd-size) auto;
+  will-change: transform;
+  animation: bd-pan 9s linear infinite;
+}
+@keyframes bd-pan { to { transform: translate3d(var(--bd-size), 0, 0); } }
+.bd-pattern-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 55% at 50% 0%, color-mix(in oklab, var(--p-t2) 80%, transparent), transparent 75%);
+}
+
+/* particles: confetti, petals, leaves, snow (fall) · emoji, fireflies (float) */
+/* particles stay vivid at the edges and quiet behind the content column */
+.bd-particles {
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, rgb(0 0 0 / 0.28) 30%, rgb(0 0 0 / 0.28) 70%, #000 100%);
+  mask-image: linear-gradient(90deg, #000 0%, rgb(0 0 0 / 0.28) 30%, rgb(0 0 0 / 0.28) 70%, #000 100%);
+}
+.bd-thumb .bd-particles { -webkit-mask-image: none; mask-image: none; }
+.bd-p { position: absolute; display: grid; place-items: center; line-height: 1; }
+.bd-p-in { display: grid; place-items: center; width: 100%; height: 100%; }
+.bd-fall .bd-p { top: 0; opacity: 0.92; will-change: transform; animation: bd-fall var(--dur) linear var(--delay) infinite; }
+.bd-fall .bd-p-in { animation: bd-flutter var(--sway) ease-in-out var(--delay) infinite alternate; }
+@keyframes bd-fall {
+  from { transform: translate3d(0, -12cqh, 0) rotate(0deg); }
+  to { transform: translate3d(var(--dx), 112cqh, 0) rotate(var(--rot)); }
+}
+@keyframes bd-flutter { from { transform: translateX(-8px) rotateY(0deg); } to { transform: translateX(8px) rotateY(160deg); } }
+.bd-snow .bd-p-in { animation-name: bd-snow-sway; filter: blur(0.4px); }
+@keyframes bd-snow-sway { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+.bd-float .bd-p { animation: bd-bob var(--dur) ease-in-out var(--delay) infinite alternate; }
+@keyframes bd-bob { from { transform: translate3d(0, -8px, 0) rotate(-7deg); } to { transform: translate3d(0, 8px, 0) rotate(7deg); } }
+.bd-emoji .bd-p { filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.12)); }
+.bd-fireflies .bd-p-in { border-radius: 50%; box-shadow: 0 0 12px 3px currentColor; animation: bd-blink var(--sway) ease-in-out var(--delay) infinite alternate; }
+@keyframes bd-blink { from { opacity: 0.15; } to { opacity: 1; } }
+
+/* grain: fine film noise over anything */
+.bd-grain {
+  position: absolute;
+  inset: 0;
+  background-image: var(--bd-grain-img);
+  mix-blend-mode: var(--bd-grain-blend);
+  opacity: var(--bd-grain-op);
+}
+
+/* editor layout schematics: mini tiles that follow the page's tile style */
+.mini-b { background: var(--p-surface); border-radius: calc(var(--p-radius) * 0.3); box-shadow: inset 0 0 0 0.75px var(--p-line); }
+.portfolio[data-tile="flat"] .mini-b { box-shadow: 0 1px 2px rgb(0 0 0 / 0.08); }
+.portfolio[data-tile="brutal"] .mini-b { box-shadow: inset 0 0 0 1px var(--p-ink), 1.5px 1.5px 0 var(--p-ink); }
+.mini-b.mini-b--accent { background: var(--p-accent); box-shadow: none; }
+
+/* editor swatches: same layers, scaled to the thumbnail */
+.bd-thumb .bd-q-drift > span { width: 120%; }
+.bd-thumb .bd-q-halo .bd-q-a { width: 220%; top: -90%; }
+.bd-thumb .bd-glow { height: 100%; -webkit-mask-image: none; mask-image: none; }
+.bd-thumb .bd-glow-img,
+.bd-thumb .bd-wash { filter: blur(10px) saturate(1.8); }
+.bd-thumb .bd-pattern { opacity: calc(var(--bd-op) * 1.8); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bd * { animation-play-state: paused !important; }
+}
+
+/* ── iPhone preview: edge-to-edge page + iOS 26 "soft" scroll edge effect ── */
+.ios-screen .portfolio { padding-top: var(--ios-top); }
+.ios-edge > span:not([style]) { position: absolute; inset: 0; }
+/* progressive blur: stronger layers are masked to a shorter band, so blur fades out downward */
+.ios-edge-b1 { backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px); -webkit-mask-image: linear-gradient(#000 0%, #000 55%, transparent 100%); mask-image: linear-gradient(#000 0%, #000 55%, transparent 100%); }
+.ios-edge-b2 { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); -webkit-mask-image: linear-gradient(#000 0%, #000 35%, transparent 75%); mask-image: linear-gradient(#000 0%, #000 35%, transparent 75%); }
+.ios-edge-b3 { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); -webkit-mask-image: linear-gradient(#000 0%, #000 20%, transparent 55%); mask-image: linear-gradient(#000 0%, #000 20%, transparent 55%); }
+
+/* app chrome (landing + editor): Gilroy headings over Inter text */
+.app h1, .app h2, .app h3,
+.ed h1, .ed h2, .ed h3 {
+  font-family: var(--font-heading);
+}
+
+.font-display {
+  font-family: var(--p-display);
+}
+.portfolio[data-lower-display="true"] .font-display {
+  text-transform: lowercase;
+  letter-spacing: -0.03em;
+}
+.p-label {
+  font-size: 0.75rem;
+  color: var(--p-muted);
+  font-weight: 500;
+}
+.portfolio[data-upper-labels="true"] .p-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6875rem;
+}
+
+/* tiles */
+.tile {
+  position: relative;
+  border-radius: var(--p-radius);
+  background: var(--p-surface);
+  overflow: hidden;
+  min-width: 0;
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    background-color 200ms ease;
+}
+/* The border is an overlay ABOVE the tile's children, so full-bleed content
+   (brand headers, cover images, video) can never paint over it. */
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--tile-ring, none);
+}
+.portfolio[data-tile="outline"] .tile {
+  --tile-ring: inset 0 0 0 1px var(--p-line);
+}
+/* solid tiles: the translucent surface laid over the page colour, so moving backgrounds stay behind */
+.portfolio:is([data-tile="outline"], [data-tile="flat"], [data-tile="brutal"]) .tile,
+.portfolio:is([data-tile="outline"], [data-tile="flat"], [data-tile="brutal"]) .section-card {
+  background: linear-gradient(var(--p-surface), var(--p-surface)), var(--p-bg);
+}
+.portfolio[data-tile="flat"] .tile {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+.portfolio[data-tile="glass"] .tile {
+  --tile-ring: inset 0 0 0 1px var(--p-line);
+  box-shadow: 0 8px 30px -12px rgb(0 0 0 / 0.18);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+}
+.portfolio[data-tile="brutal"] .tile {
+  --tile-ring: inset 0 0 0 2px var(--p-ink);
+  box-shadow: 4px 4px 0 0 var(--p-ink);
+}
+
+/* Bento: an odd last wide/large tile would leave an empty hole beside it, so it takes the full row.
+   A brand card that does this lays out side by side and drops to one row tall. */
+.portfolio[data-layout="bento"] section > .grid > .tile:is([data-size="w"], [data-size="l"]):last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+@container (min-width: 42rem) {
+  .portfolio[data-layout="bento"] section > .grid > .brand-tile:last-child:nth-child(odd) {
+    grid-row: span 1 / span 1;
+    flex-direction: row;
+  }
+  .portfolio[data-layout="bento"] section > .grid > .brand-tile:last-child:nth-child(odd) > .brand-head {
+    flex: 0 0 42%;
+    align-items: center;
+  }
+  .portfolio[data-layout="bento"] section > .grid > .brand-tile:last-child:nth-child(odd) > .brand-body {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* hard offset shadows need room, or stacked tiles look glued together */
+.portfolio[data-tile="brutal"] section > .grid {
+  gap: 16px;
+}
+
+/* cards layout: the section is the card, items inside become quiet fills */
+.portfolio[data-layout="cards"] .section-card .tile {
+  --tile-ring: none;
+  box-shadow: none;
+  background: var(--p-surface2);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.portfolio[data-tile="brutal"] .section-card {
+  box-shadow:
+    inset 0 0 0 2px var(--p-ink),
+    4px 4px 0 0 var(--p-ink) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.tile:hover,
+  button.tile:hover {
+    transform: translateY(-2px);
+  }
+  .portfolio[data-tile="brutal"] a.tile:hover,
+  .portfolio[data-tile="brutal"] button.tile:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 var(--p-ink);
+  }
+  .tile .lift-img {
+    transition: transform 600ms var(--ease-out);
+  }
+  .tile:hover .lift-img {
+    transform: scale(1.04);
+  }
+}
+a.tile:active,
+button.tile:active {
+  transform: scale(0.985);
+  transition-duration: 120ms;
+}
+
+/* buttons */
+.p-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  background: var(--p-accent);
+  color: var(--p-accent-ink);
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out),
+    opacity 160ms ease;
+}
+.p-btn:active {
+  transform: scale(0.97);
+}
+.p-btn--ghost {
+  background: var(--p-surface2);
+  color: var(--p-ink);
+}
+.portfolio[data-button="pill"] .p-btn {
+  border-radius: 999px;
+}
+.portfolio[data-button="rounded"] .p-btn {
+  border-radius: 14px;
+}
+.portfolio[data-button="square"] .p-btn {
+  border-radius: 3px;
+}
+.portfolio[data-button="brutal"] .p-btn {
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 2px var(--p-ink),
+    3px 3px 0 0 var(--p-ink);
+}
+.portfolio[data-button="brutal"] .p-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    inset 0 0 0 2px var(--p-ink),
+    1px 1px 0 0 var(--p-ink);
+}
+
+/* ───────────────── motion ───────────────── */
+
+/* The one orchestrated moment: tiles settle in on load, staggered, ~0.6s total. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+    filter: blur(6px);
+  }
+}
+.enter {
+  animation: settle 560ms var(--ease-out) both;
+  animation-delay: min(calc(var(--i, 0) * 40ms), 520ms);
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, #22c55e 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+.live-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+.bar-fill {
+  transform-origin: left;
+  animation: bar-grow 900ms var(--ease-out) both;
+  animation-delay: calc(240ms + var(--i, 0) * 60ms);
+}
+
+.ui-press {
+  transition: transform 160ms var(--ease-out), background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.ui-press:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .bar-fill,
+  .live-dot {
+    animation: none;
+  }
+  .tile,
+  .p-btn,
+  .ui-press,
+  .tile .lift-img {
+    transition-duration: 0ms !important;
+  }
+}
+
+/* ───────────────── editor chrome preferences ─────────────────
+   Driven by data-ui-* attributes on .ed (see editor/use-ui-prefs.ts).
+   Every rule skips the portfolio preview, which keeps its own theme. */
+
+.ed {
+  font-family: var(--ui-font, var(--font-sans));
+  background: var(--ui-bg);
+  color: var(--ui-ink);
+}
+
+/* corners */
+.ed .rounded-lg:not(.portfolio *) { border-radius: var(--ui-r-s); }
+.ed .rounded-xl:not(.portfolio *) { border-radius: var(--ui-r); }
+.ed .rounded-2xl:not(.portfolio *) { border-radius: var(--ui-r-l); }
+
+/* primary button: flat · lip (Play DMS) · pill */
+.ui-cta {
+  background: var(--ui-accent);
+  color: var(--ui-accent-ink);
+}
+.ed[data-ui-button="lip"] .ui-cta {
+  box-shadow: inset 0 0 0 1px var(--ui-lip), 0 2px 0 var(--ui-lip);
+}
+.ed[data-ui-button="lip"] .ui-cta:not(:disabled):active {
+  transform: translateY(2px);
+  box-shadow: inset 0 0 0 1px var(--ui-lip), 0 0 0 var(--ui-lip);
+}
+.ed[data-ui-button="pill"] .ui-cta { border-radius: 999px; }
+
+/* density */
+.ed[data-ui-density="compact"] { font-size: 13px; }
+.ed[data-ui-density="compact"] .ed-top { height: 46px; }
+.ed[data-ui-density="compact"] .ed-scroll { padding: 12px; }
+.ed[data-ui-density="compact"] .ed-stack { gap: 1.25rem; }
+.ed[data-ui-density="compact"] .ed-input { padding-block: 5px; font-size: 13px; }
+.ed[data-ui-density="compact"] .ed-row { min-height: 42px; padding-block: 4px; }
+
+/* motion */
+.ed[data-ui-motion="reduced"] *:not(.portfolio, .portfolio *) {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+}
+
+/* canvas texture */
+.ed[data-ui-canvas="dots"] .ed-canvas {
+  background-image: radial-gradient(color-mix(in oklab, var(--ui-ink) 12%, transparent) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.ed[data-ui-canvas="grid"] .ed-canvas {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--ui-ink) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--ui-ink) 6%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* split orb swatch (bg ↗ accent), as in Play DMS */
+/* Full Solo lockup is lime + white: sits bare on dark chrome, gets a dark chip on light chrome */
+.logo-chip { border-radius: 10px; }
+@media (prefers-color-scheme: light) {
+  .logo-chip { background: #0b0b0b; padding: 6px 9px; }
+}
+.ed[data-ui-dark="false"] .logo-chip { background: #0b0b0b; padding: 6px 9px; }
+.ed[data-ui-dark="true"] .logo-chip { background: none; padding: 0; }
+
+.ui-orb {
+  display: inline-block;
+  flex: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--a) 0 54%, var(--b) 54% 100%);
+  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 0.35);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

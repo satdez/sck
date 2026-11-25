@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local Claude Code settings
+/.claude/
+
+# prototype page store (published pages live here at runtime)
+/data/
