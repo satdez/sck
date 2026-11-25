@@ -296,6 +296,7 @@ body {
 
 /* still mockups (landing phones): freeze background motion; paused, not removed, so particles stay scattered */
 .is-still .bd * { animation-play-state: paused !important; }
+.is-still .p-cta { display: none; } /* a mockup shows the page, not the floating bar over it */
 
 /* ── phones ── */
 html { -webkit-tap-highlight-color: transparent; }

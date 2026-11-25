@@ -45,3 +45,4 @@ next-env.d.ts
 
 # prototype page store (published pages live here at runtime)
 /data/
+/public/_render/

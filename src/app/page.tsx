@@ -1,26 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
-import { IPhoneFrame } from "@/components/editor/iphone-frame";
-import { PortfolioView } from "@/components/portfolio/portfolio-view";
 import { SAMPLE } from "@/lib/sample";
-import { getPreset, presetTheme, resolveTheme } from "@/lib/themes";
 import { ClaimForm } from "./claim-form";
-
-/** One live phone: the real frame, a real page, no captions. */
-function Phone({ preset }: { preset: string }) {
-  const theme = presetTheme(getPreset(preset));
-  const { palette } = resolveTheme(theme);
-  return (
-    <IPhoneFrame barBg={palette.bg} barInk={palette.ink} still>
-      <PortfolioView portfolio={{ ...SAMPLE, theme }} className="min-h-full" />
-    </IPhoneFrame>
-  );
-}
 
 export default function Home() {
   return (
     <div className="app relative min-h-dvh overflow-x-clip bg-[#0b0b0b] text-white">
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-6">
-        {/* trial: the 3D lockup (solo-c-k-01.svg) */}
+        {/* the 3D Solo Creator Kit lockup (solo-c-k-01.svg) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo/11-imported-solo-c-k-01.svg" alt="Solo Creator Kit" width={284} height={201} className="h-16 w-auto sm:h-20" />
         <Link
@@ -46,39 +33,19 @@ export default function Home() {
           </Link>
         </section>
 
-        {/* ── three live phones, fanned ── */}
-        <section aria-label="Example pages" className="group relative mx-auto h-[500px] w-full max-w-[560px] sm:h-[640px]">
-          {/* one soft brand glow, nothing more */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-1/2 size-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-3xl"
-            style={{ background: "radial-gradient(closest-side, rgb(150 255 67 / 0.22), transparent)" }}
+        {/* ── three phones: one pre-rendered image (scripts/render-hero.mjs), so phones scroll this page smoothly ── */}
+        <div className="enter -mx-5 -mt-10 -mb-12 sm:mx-auto sm:my-0 sm:w-full sm:max-w-[600px]" style={{ ["--i" as string]: 1 }}>
+          <Image
+            src="/hero-phones.webp"
+            alt="Three example creator pages on iPhones"
+            width={1440}
+            height={1520}
+            priority
+            sizes="(min-width: 1024px) 600px, (min-width: 640px) 600px, 100vw"
+            className="h-auto w-full select-none"
+            draggable={false}
           />
-          <div
-            className="fan-side enter absolute top-[8%] left-1/2 h-[430px] w-[210px] sm:h-[530px] sm:w-[259px]"
-            style={{ ["--i" as string]: 2, ["--fan" as string]: "-1" }}
-            aria-hidden
-            inert
-          >
-            <Phone preset="golden" />
-          </div>
-          <div
-            className="fan-side enter absolute top-[8%] left-1/2 h-[430px] w-[210px] sm:h-[530px] sm:w-[259px]"
-            style={{ ["--i" as string]: 3, ["--fan" as string]: "1" }}
-            aria-hidden
-            inert
-          >
-            <Phone preset="acid" />
-          </div>
-          <div
-            className="fan-center enter absolute top-0 left-1/2 z-10 h-[490px] w-[240px] -translate-x-1/2 sm:h-[613px] sm:w-[300px]"
-            style={{ ["--i" as string]: 1 }}
-            aria-hidden
-            inert
-          >
-            <Phone preset="afterglow" />
-          </div>
-        </section>
+        </div>
       </main>
     </div>
   );
