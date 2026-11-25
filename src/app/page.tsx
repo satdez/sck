@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SAMPLE } from "@/lib/sample";
+import { CoinFavicon } from "@/components/coin-favicon";
 import { ClaimForm } from "./claim-form";
 
 export default function Home() {
   return (
     <div className="app relative min-h-dvh overflow-x-clip bg-[#0b0b0b] text-white">
+      <CoinFavicon />
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-6">
         {/* the 3D Solo Creator Kit lockup (solo-c-k-01.svg) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}

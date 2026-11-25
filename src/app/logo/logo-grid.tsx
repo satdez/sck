@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CoinFavicon } from "@/components/coin-favicon";
 
 export type LogoVariation = { slug: string; name: string; note: string; svg: string; animatable?: boolean };
 
@@ -25,7 +26,7 @@ const CSS = `
 .logo-btn:hover { background: #242424; }
 .logo-btn:focus-visible { outline: 2px solid #96FF43; outline-offset: 2px; }
 
-.logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem, .logo-stage .plate, .logo-stage .under, .logo-stage .face { transform-box: fill-box; transform-origin: 50% 50%; }
+.logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem { transform-box: fill-box; transform-origin: 50% 50%; }
 .logo-stage.play .solo { animation: solo-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
 .logo-stage.play .ch { animation: ch-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 34ms + 260ms); }
 .logo-stage.play .box { animation: box-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: 180ms; }
@@ -34,18 +35,13 @@ const CSS = `
 .logo-stage.play .emblem { animation: bolt-in 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both; animation-delay: 300ms; }
 .logo-stage.play .cursor { animation: blink 1s steps(1) 1s infinite; }
 
-/* 3D block lockups (11, 12): plates wipe open from the left, lime faces slide out of them */
-.logo-stage .plate, .logo-stage .under { transform-origin: 0 50%; }
-.logo-stage .face { transform-origin: 0 50%; }
-.logo-stage.play .plate, .logo-stage.play .under { animation: plate-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.logo-stage.play .face { animation: face-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) both; }
-.logo-stage.play .p1 { animation-delay: 140ms; }
-.logo-stage.play .face.p1 { animation-delay: 380ms; }
-.logo-stage.play .p2 { animation-delay: 400ms; }
-.logo-stage.play .face.p2 { animation-delay: 640ms; }
+/* 3D block lockups (11, 12): each block is one solid piece (plate, lime face and letters move together).
+   CREATOR slides in from the lower right, KIT from the lower left, and both settle with a small overshoot. */
+.logo-stage.play .b1 { animation: blk-right 0.85s cubic-bezier(0.2, 0.9, 0.25, 1.1) 280ms both; }
+.logo-stage.play .b2 { animation: blk-left 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.1) 760ms both; }
+@keyframes blk-right { from { opacity: 0; translate: 150px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
+@keyframes blk-left { from { opacity: 0; translate: -130px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
 
-@keyframes plate-in { from { opacity: 0; transform: scaleX(0.35); } to { opacity: 1; transform: none; } }
-@keyframes face-in { from { opacity: 0; transform: translateX(-14px) scaleX(0.4); } to { opacity: 1; transform: none; } }
 @keyframes solo-in { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes ch-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes box-in { from { opacity: 0; transform: scaleX(0.6); } to { opacity: 1; transform: none; } }
@@ -90,6 +86,7 @@ function LogoCard({ v }: { v: LogoVariation }) {
 export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
   return (
     <main className="logo-page">
+      <CoinFavicon />
       <style>{CSS}</style>
       <header className="logo-head">
         <h1>Solo logo exploration</h1>
