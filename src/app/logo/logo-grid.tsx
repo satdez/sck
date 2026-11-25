@@ -3,6 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { CoinFavicon, FLIP_MS, coinFrame } from "@/components/coin-favicon";
 
+/** Block body colours: a = the face with the letters, b = the underside. The end cap stays lime. */
+const TONES = [
+  { name: "Original", a: "#000000", b: "#0b0b0b" },
+  { name: "Graphite", a: "#1b1b1e", b: "#2c2c30" },
+  { name: "Graphite, shaded", a: "#27272b", b: "#151517" },
+  { name: "Ink blue", a: "#14171f", b: "#252a38" },
+  { name: "Warm ash", a: "#1e1c1a", b: "#2f2c28" },
+  { name: "Forest", a: "#101a10", b: "#1e2e19" },
+  { name: "Slate", a: "#212327", b: "#33363c" },
+];
+
 export type LogoVariation = { slug: string; name: string; note: string; svg: string; animatable?: boolean };
 
 // Per-element motion. Every animated piece carries --i (its order), so the
@@ -26,6 +37,13 @@ const CSS = `
 .logo-btn:hover { background: #242424; }
 .logo-btn:focus-visible { outline: 2px solid #96FF43; outline-offset: 2px; }
 
+.logo-stage .plate { fill: var(--blk-a, #000); stroke: var(--blk-a, #000); }
+.logo-stage .under { fill: var(--blk-b, #0b0b0b); }
+.logo-tones { max-width: 1100px; margin: 0 auto 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.logo-tone { appearance: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #2c2c2c; background: #1c1c1c; color: #f2f2f2; border-radius: 999px; padding: 6px 12px 6px 8px; font-size: 13px; cursor: pointer; }
+.logo-tone[aria-pressed="true"] { border-color: #96FF43; box-shadow: 0 0 0 3px rgb(150 255 67 / 0.14); }
+.logo-tone i { display: inline-flex; width: 22px; height: 22px; border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16); }
+.logo-tone i b { flex: 1; }
 .logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem { transform-box: fill-box; transform-origin: 50% 50%; }
 .logo-stage.play .solo { animation: solo-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
 .logo-stage.play .ch { animation: ch-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 34ms + 260ms); }
@@ -54,7 +72,7 @@ const CSS = `
 }
 `;
 
-function LogoCard({ v }: { v: LogoVariation }) {
+function LogoCard({ v, tone }: { v: LogoVariation; tone: (typeof TONES)[number] }) {
   const [run, setRun] = useState(0);
   const playing = run > 0;
   return (
@@ -67,6 +85,7 @@ function LogoCard({ v }: { v: LogoVariation }) {
       <div
         key={run}
         className={`logo-stage${playing ? " play" : ""}`}
+        style={{ ["--blk-a" as string]: tone.a, ["--blk-b" as string]: tone.b }}
         dangerouslySetInnerHTML={{ __html: v.svg }}
       />
       <div className="logo-actions">
@@ -138,6 +157,7 @@ function CoinCard() {
 }
 
 export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
+  const [toneIx, setToneIx] = useState(0);
   return (
     <main className="logo-page">
       <CoinFavicon />
@@ -148,9 +168,20 @@ export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
           The shortlist for the Creator Kit lockup. Every letter is its own path so each one can animate; press Play on a card to see it.
         </p>
       </header>
+      <div className="logo-tones" role="group" aria-label="Block colour for the 3D logos">
+        {TONES.map((t, i) => (
+          <button key={t.name} type="button" className="logo-tone" aria-pressed={i === toneIx} onClick={() => setToneIx(i)}>
+            <i aria-hidden>
+              <b style={{ background: t.a }} />
+              <b style={{ background: t.b }} />
+            </i>
+            {t.name}
+          </button>
+        ))}
+      </div>
       <section className="logo-grid">
         {variations.map((v) => (
-          <LogoCard key={v.slug} v={v} />
+          <LogoCard key={v.slug} v={v} tone={TONES[toneIx]} />
         ))}
         <CoinCard />
       </section>
