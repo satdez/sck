@@ -11,7 +11,8 @@ const FRAMES = 18;
 export const FLIP_MS = 900;
 const EVERY_MS = 6000;
 const FACE = "#96ff43";
-const RIM = "#4f9a1c"; // the coin's edge: lime in shade
+const FACE_LIGHT = "#c4ff85";
+const FACE_DEEP = "#74d82a";
 
 /** One frame of the coin at flip progress p (0..1): a full turn around its vertical axis, with a small toss. */
 export function coinFrame(p: number, size = SIZE): string {
@@ -31,9 +32,15 @@ export function coinFrame(p: number, size = SIZE): string {
   const cx = SIZE / 2;
   const cy = SIZE / 2 + toss;
 
-  // edge: slices of the disc between the two faces
+  // edge: slices of the disc between the two faces, shaded like a polished cylinder (bright band up top, deep bands below)
   const off = (T / 2) * sin; // how far each face slides sideways as the coin turns
-  ctx.fillStyle = RIM;
+  const rim = ctx.createLinearGradient(0, cy - R, 0, cy + R);
+  rim.addColorStop(0, "#6fbe2a");
+  rim.addColorStop(0.22, "#c2fb7a");
+  rim.addColorStop(0.5, "#4f9a1c");
+  rim.addColorStop(0.82, "#37710f");
+  rim.addColorStop(1, "#5ea224");
+  ctx.fillStyle = rim;
   const slices = 8;
   for (let i = 0; i <= slices; i++) {
     const x = cx + off * (-1 + (2 * i) / slices);
@@ -42,12 +49,53 @@ export function coinFrame(p: number, size = SIZE): string {
     ctx.fill();
   }
 
-  // the face turned toward us, with the bolt cut through everything behind it
+  // the face turned toward us: lime that runs from light (top left) to deep (bottom right), like brushed metal
   const fx = cx + (cos >= 0 ? off : -off);
-  ctx.fillStyle = FACE;
+  const face = ctx.createLinearGradient(fx - w, cy - R, fx + w, cy + R);
+  face.addColorStop(0, FACE_LIGHT);
+  face.addColorStop(0.5, FACE);
+  face.addColorStop(1, FACE_DEEP);
+  ctx.fillStyle = face;
   ctx.beginPath();
   ctx.ellipse(fx, cy, w, R, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  // shine, clipped to the face: a soft sheen top left, plus a diagonal glint that sweeps across as the coin turns
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(fx, cy, w, R, 0, 0, Math.PI * 2);
+  ctx.clip();
+  const sheen = ctx.createRadialGradient(fx - w * 0.35, cy - R * 0.5, 0, fx - w * 0.35, cy - R * 0.5, R * 0.95);
+  sheen.addColorStop(0, "rgba(255,255,255,0.38)");
+  sheen.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = sheen;
+  ctx.fillRect(fx - w, cy - R, w * 2, R * 2);
+  const a = (((turn + Math.PI / 2) % Math.PI) + Math.PI) % Math.PI / Math.PI; // 0 → 1 across each visible face
+  const glint = Math.min(Math.abs(sin) * 1.7, 1); // none at rest, full strength mid-turn
+  if (glint > 0.02) {
+    const hx = fx + (a * 2 - 1) * w * 1.25;
+    const dx = 0.82 * R * 0.42;
+    const dy = 0.57 * R * 0.42;
+    const g = ctx.createLinearGradient(hx - dx, cy - dy, hx + dx, cy + dy);
+    g.addColorStop(0, "rgba(255,255,255,0)");
+    g.addColorStop(0.5, `rgba(255,255,255,${0.9 * glint})`);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(fx - w, cy - R, w * 2, R * 2);
+  }
+  ctx.restore();
+
+  // bevel: a bright lip along the top of the face, a shaded one along the bottom
+  const inner = Math.max(w - 1.6, 0.01);
+  ctx.lineWidth = 1.3;
+  ctx.strokeStyle = "rgba(255,255,255,0.6)";
+  ctx.beginPath();
+  ctx.ellipse(fx, cy, inner, R - 1.6, 0, Math.PI * 1.05, Math.PI * 1.95);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(30,80,0,0.4)";
+  ctx.beginPath();
+  ctx.ellipse(fx, cy, inner, R - 1.6, 0, Math.PI * 0.05, Math.PI * 0.95);
+  ctx.stroke();
 
   // bolt: same artwork on both faces, scaled with the disc
   const k = (2 * R) / 51; // 51 = viewBox width
