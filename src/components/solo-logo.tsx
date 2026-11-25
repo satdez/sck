@@ -77,3 +77,17 @@ export function SoloBadge({ height = 16 }: { height?: number }) {
     </span>
   );
 }
+
+/** The bolt-in-a-circle mark (favicon). For tight spots like the phone top bar. */
+export function SoloMark({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 51 50" className={className} role="img" aria-label="Solo" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="#96FF43"
+        d="M25.501 0C39.5837 0.0006 50.9989 11.1943 50.999 25.001C50.9984 38.8073 39.5834 49.9993 25.501 50C11.4179 50 0.0005 38.8077 0 25.001C0.0001 11.1938 11.4177 0 25.501 0ZM34.3935 10.6074C34.8683 9.812 33.8919 9.0402 33.2119 9.5723L14.7412 24.0351C14.1472 24.4701 14.3755 25.2848 14.9941 25.4473L23.1465 27.5889L16.6084 39.3828C16.131 40.1789 17.1096 40.9512 17.79 40.417L36.3027 25.9219C36.8085 25.5241 36.6461 24.7176 36.0078 24.5478L27.8652 22.3916L34.3935 10.6074Z"
+      />
+    </svg>
+  );
+}

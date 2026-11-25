@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail, Share } from "lucide-react";
 import { resolveTheme } from "@/lib/themes";
 import type { Portfolio, Section } from "@/lib/types";
 import { LayoutContext } from "./layout-context";
@@ -8,6 +9,7 @@ import { ProfileBlock } from "./profile";
 import { SectionTiles } from "./sections";
 import { SplitLayout } from "./split";
 import { ThemeScope } from "./theme-scope";
+import { ShareSheet } from "../share-sheet";
 import { SoloLogo } from "../solo-logo";
 
 const sectionAnchor = (s: Section) => (s.type === "contact" ? "work-with-me" : s.id);
@@ -22,6 +24,7 @@ function SectionHeading({ title, className = "" }: { title: string; className?: 
  */
 export function PortfolioView({ portfolio, className = "" }: { portfolio: Portfolio; className?: string }) {
   const layout = resolveTheme(portfolio.theme).layout;
+  const hasContact = portfolio.sections.some((s) => s.type === "contact" && s.visible && s.items.length > 0);
   const ctx = { layout, base: 0 };
   const sections = portfolio.sections.filter((s) => s.visible && s.items.length > 0);
   // profile is step 0; each section starts 2 steps after the previous one
@@ -106,6 +109,28 @@ export function PortfolioView({ portfolio, className = "" }: { portfolio: Portfo
             <span className="text-muted">· get yours</span>
           </a>
         </footer>
+
+        {/* phones: the ask is always one tap away. Sticky (not fixed) so it stays inside
+            whatever frame renders the page, and rests after the footer at the very end. */}
+        {hasContact && (
+          <div className="p-cta sticky z-20 flex gap-2 px-4 pt-2 @3xl:hidden">
+            <a href="#work-with-me" className="p-btn h-12 flex-1 text-[15px] shadow-[0_10px_30px_-10px_rgb(0_0_0/0.45)]">
+              <Mail className="size-4" /> Work with me
+            </a>
+            <ShareSheet
+              slug={portfolio.slug}
+              trigger={
+                <button
+                  type="button"
+                  aria-label="Share page"
+                  className="p-btn p-btn--ghost size-12 shadow-[inset_0_0_0_1px_var(--p-line),0_10px_30px_-10px_rgb(0_0_0/0.35)] backdrop-blur-xl"
+                >
+                  <Share className="size-4" />
+                </button>
+              }
+            />
+          </div>
+        )}
       </LayoutContext.Provider>
     </ThemeScope>
   );

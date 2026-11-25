@@ -45,14 +45,16 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
   const t = c ? contactTarget(c) : null;
 
   return (
-    <div className="mx-auto grid max-w-[1080px] gap-10 px-4 py-6 @3xl:grid-cols-[minmax(280px,340px)_1fr] @3xl:gap-14 @3xl:px-8 @3xl:py-14">
+    // Phones: the two columns dissolve (display: contents) and each block takes an order, so the
+    // name and the booking card come right after the cover instead of after the socials list.
+    <div className="mx-auto grid max-w-[1080px] gap-7 px-4 py-6 @3xl:grid-cols-[minmax(280px,340px)_1fr] @3xl:gap-14 @3xl:px-8 @3xl:py-14">
       {/* ── left: the creator ── */}
-      <aside className="enter flex flex-col gap-7 @3xl:sticky @3xl:top-10 @3xl:self-start" style={{ ["--i" as string]: 0 }}>
-        <div className="tile aspect-square w-full shadow-[0_24px_60px_-30px_rgb(0_0_0/0.45)]">
+      <aside className="contents @3xl:sticky @3xl:top-10 @3xl:flex @3xl:flex-col @3xl:gap-7 @3xl:self-start">
+        <div className="enter tile order-1 aspect-[4/3] w-full shadow-[0_24px_60px_-30px_rgb(0_0_0/0.45)] @3xl:aspect-square" style={{ ["--i" as string]: 0 }}>
           <Banner p={p} className="absolute inset-0 size-full" />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="order-3 flex items-center gap-3">
           <Avatar src={p.avatar} name={p.name} className="size-10 ring-0" />
           <div className="min-w-0 flex-1">
             <p className="text-xs text-muted">Creator</p>
@@ -71,10 +73,10 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
           />
         </div>
 
-        <p className="-mt-2 text-[15px] leading-relaxed text-pretty text-muted">{p.bio}</p>
+        <p className="order-4 -mt-3 text-[15px] leading-relaxed text-pretty text-muted @3xl:-mt-2">{p.bio}</p>
 
         {socials && (
-          <div className="flex flex-col gap-1">
+          <div className="order-6 flex flex-col gap-1">
             <Label>{socials.title}</Label>
             <ul className="flex flex-col">
               {socials.items.map((s, i) => (
@@ -97,7 +99,7 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
         )}
 
         {p.tags.length > 0 && (
-          <div className="flex flex-col gap-3">
+          <div className="order-7 flex flex-col gap-3">
             <Label>Niches</Label>
             <div className="flex flex-wrap gap-1.5">
               {p.tags.map((t) => (
@@ -111,8 +113,8 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
       </aside>
 
       {/* ── right: the pitch, then the work ── */}
-      <main className="flex min-w-0 flex-col gap-10">
-        <header className="enter flex flex-col gap-6" style={{ ["--i" as string]: 1 }}>
+      <main className="contents @3xl:flex @3xl:min-w-0 @3xl:flex-col @3xl:gap-10">
+        <header className="enter order-2 flex flex-col gap-5 @3xl:gap-6" style={{ ["--i" as string]: 1 }}>
           {p.available && (
             <span className="inline-flex w-fit items-center gap-2 rounded-[calc(var(--p-radius)*0.5)] bg-surface px-3 py-1.5 text-sm shadow-[inset_0_0_0_1px_var(--p-line)]">
               <span className="live-dot size-2 rounded-full bg-[#22c55e]" />
@@ -136,7 +138,7 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
         {/* booking card, Luma's registration box */}
         <section
           id="work-with-me"
-          className="enter scroll-mt-6 overflow-hidden rounded-[var(--p-radius)] bg-surface shadow-[inset_0_0_0_1px_var(--p-line),0_20px_50px_-36px_rgb(0_0_0/0.4)]"
+          className="enter order-5 scroll-mt-6 overflow-hidden rounded-[var(--p-radius)] bg-surface shadow-[inset_0_0_0_1px_var(--p-line),0_20px_50px_-36px_rgb(0_0_0/0.4)]"
           style={{ ["--i" as string]: 2 }}
         >
           <p className="bg-surface-2 px-5 py-3 text-sm font-medium text-muted">{contact?.title ?? "Work with me"}</p>
@@ -155,7 +157,7 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
         </section>
 
         {main.map((s, i) => (
-          <section key={s.id} id={s.id} className="flex scroll-mt-6 flex-col gap-4">
+          <section key={s.id} id={s.id} className="order-8 flex scroll-mt-6 flex-col gap-4">
             <Label>{s.title}</Label>
             <LayoutContext.Provider value={{ layout: "split", base: 3 + i * 2 }}>
               <div className="grid grid-cols-2 gap-3">

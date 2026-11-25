@@ -203,7 +203,7 @@ function SectionRow({ section, onChange }: { section: Section; onChange: (s: Sec
           type="button"
           aria-label={`Drag to reorder ${section.title}`}
           onPointerDown={(e) => controls.start(e)}
-          className="grid size-8 cursor-grab touch-none place-items-center rounded-lg text-ui-muted hover:bg-ui-sunken active:cursor-grabbing"
+          className="grid size-10 cursor-grab touch-none lg:size-8 place-items-center rounded-lg text-ui-muted hover:bg-ui-sunken active:cursor-grabbing"
         >
           <GripVertical className="size-4" />
         </button>
@@ -222,7 +222,7 @@ function SectionRow({ section, onChange }: { section: Section; onChange: (s: Sec
           type="button"
           onClick={() => onChange({ ...section, visible: !section.visible } as Section)}
           aria-label={section.visible ? "Hide section" : "Show section"}
-          className="ui-press grid size-8 place-items-center rounded-lg text-ui-muted hover:bg-ui-sunken hover:text-ui-ink"
+          className="ui-press grid size-10 place-items-center rounded-lg text-ui-muted hover:bg-ui-sunken hover:text-ui-ink lg:size-8"
         >
           {section.visible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
         </button>
@@ -230,7 +230,7 @@ function SectionRow({ section, onChange }: { section: Section; onChange: (s: Sec
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-label="Edit section"
-          className="grid size-8 place-items-center rounded-lg text-ui-muted hover:bg-ui-sunken"
+          className="grid size-10 place-items-center rounded-lg text-ui-muted hover:bg-ui-sunken lg:size-8"
         >
           <ChevronDown className={`size-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
         </button>

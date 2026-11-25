@@ -6,7 +6,7 @@ import { useId, type ReactNode } from "react";
 /* Small set of editor primitives on the --ui-* tokens. */
 
 export const inputCls =
-  "ed-input w-full rounded-lg border border-ui-line bg-ui-panel px-3 py-2 text-sm text-ui-ink placeholder:text-ui-muted/70 outline-none transition-[border-color,box-shadow] duration-150 focus:border-ui-ink/40 focus:ring-4 focus:ring-ui-ink/5";
+  "ed-input w-full rounded-lg border border-ui-line bg-ui-panel px-3 py-2.5 text-[16px] text-ui-ink lg:py-2 lg:text-sm placeholder:text-ui-muted/70 outline-none transition-[border-color,box-shadow] duration-150 focus:border-ui-ink/40 focus:ring-4 focus:ring-ui-ink/5";
 
 export function FieldRow({ label, hint, children, htmlFor }: { label: string; hint?: string; children: ReactNode; htmlFor?: string }) {
   return (
@@ -57,7 +57,7 @@ export function Segmented<T extends string>({
             title={o.title}
             onClick={() => onChange(o.value)}
             className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-lg font-medium transition-colors duration-150 ${
-              size === "sm" ? "h-7 px-2.5 text-xs" : "h-8 px-3 text-sm"
+              size === "sm" ? "h-7 px-2.5 text-xs" : "h-10 px-3 text-sm lg:h-8"
             } ${active ? "text-ui-ink" : "text-ui-muted hover:text-ui-ink"}`}
           >
             {active && (

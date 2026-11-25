@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { checkSlug, publish } from "@/app/actions";
 import { PortfolioView } from "@/components/portfolio/portfolio-view";
 import { ShareSheet } from "@/components/share-sheet";
-import { SoloCreatorKit } from "@/components/solo-logo";
+import { SoloCreatorKit, SoloMark } from "@/components/solo-logo";
 import { SAMPLE } from "@/lib/sample";
 import { resolveTheme } from "@/lib/themes";
 import type { Portfolio } from "@/lib/types";
@@ -108,7 +108,15 @@ function Rail({ tab, onTab, side }: { tab: Tab; onTab: (t: Tab) => void; side: "
 export default function Editor() {
   const ui = useUiPrefs();
   const { prefs } = ui;
-  const [draft, setDraft] = useState<Portfolio>(() => readLS<Portfolio>(DRAFT_KEY) ?? freshDraft());
+  const [draft, setDraft] = useState<Portfolio>(() => {
+    const base = readLS<Portfolio>(DRAFT_KEY) ?? freshDraft();
+    // arriving from the landing page's "Claim" field: use that name
+    const claimed = new URLSearchParams(window.location.search).get("slug");
+    if (claimed) {
+      return { ...base, slug: claimed.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 30) };
+    }
+    return base;
+  });
   const [published, setPublished] = useState<Portfolio | null>(() => readLS<Portfolio>(PUBLISHED_KEY));
   const [tab, setTab] = useState<Tab>("content");
   const [mobileView, setMobileView] = useState<"edit" | "preview">("edit");
@@ -120,6 +128,11 @@ export default function Editor() {
     const { palette } = resolveTheme(draft.theme);
     return { bg: palette.bg, ink: palette.ink };
   }, [draft.theme]);
+
+  // tidy the URL after taking the claimed name (in an effect: initializers can run twice)
+  useEffect(() => {
+    if (window.location.search.includes("slug=")) window.history.replaceState(null, "", "/editor");
+  }, []);
 
   // autosave draft (debounced)
   useEffect(() => {
@@ -196,13 +209,17 @@ export default function Editor() {
         {/* ───────── top bar ───────── */}
         <header className="ed-top flex h-14 shrink-0 items-center gap-3 border-b border-ui-line bg-ui-panel px-3 lg:px-4">
           <Link href="/" aria-label="Solo Creator Kit home" className="ui-press flex shrink-0 items-center">
-            <SoloCreatorKit height={22} />
+            <span className="hidden sm:inline-flex">
+              <SoloCreatorKit height={22} />
+            </span>
+            {/* phones: just the bolt mark, so the page address gets the room */}
+            <SoloMark className="size-8 sm:hidden" />
           </Link>
 
-          <div className="mx-auto flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:mx-auto sm:flex-none">
             <label
               htmlFor="slug"
-              className={`flex h-9 min-w-0 cursor-text items-center rounded-xl border bg-ui-sunken pr-2.5 pl-2.5 text-sm transition-colors ${
+              className={`flex h-10 min-w-0 flex-1 cursor-text items-center rounded-xl sm:h-9 sm:flex-none border bg-ui-sunken pr-2.5 pl-2.5 text-sm transition-colors ${
                 slugState.status === "bad" && draft.slug ? "border-red-500/50" : "border-ui-line focus-within:border-ui-ink/40"
               }`}
             >
@@ -221,7 +238,7 @@ export default function Editor() {
                 // grows with the name (field-sizing), so "name.sck.bio" reads as one address with no dead gap
                 size={Math.max(draft.slug.length, 8)}
                 style={{ fieldSizing: "content" } as CSSProperties}
-                className="max-w-[16ch] min-w-[2ch] bg-transparent font-medium outline-none placeholder:text-ui-muted/60"
+                className="max-w-[16ch] min-w-[2ch] bg-transparent text-[16px] font-medium outline-none placeholder:text-ui-muted/60 sm:text-sm"
               />
               <span className="text-ui-muted">.sck.bio</span>
               <span className="ml-2 hidden items-center sm:flex" aria-live="polite" title={slugHint}>
@@ -274,7 +291,7 @@ export default function Editor() {
               type="button"
               onClick={onPublish}
               disabled={!canPublish}
-              className={`ui-cta ui-press relative inline-flex h-9 items-center gap-2 overflow-hidden rounded-xl px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:active:scale-100 ${
+              className={`ui-cta ui-press relative inline-flex h-10 shrink-0 items-center sm:h-9 gap-2 overflow-hidden rounded-xl px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:active:scale-100 ${
                 !dirty && published ? "" : "disabled:opacity-45"
               }`}
             >
@@ -294,7 +311,9 @@ export default function Editor() {
                   ) : !published ? (
                     "Publish"
                   ) : dirty ? (
-                    "Publish changes"
+                    <>
+                      Publish<span className="hidden sm:inline"> changes</span>
+                    </>
                   ) : (
                     <>
                       <CircleCheck className="size-4" /> Live
@@ -376,7 +395,7 @@ export default function Editor() {
           {/* ───────── preview ───────── */}
           <main className={`ed-canvas ${mobileView === "preview" ? "flex" : "hidden"} min-w-0 flex-1 items-start justify-center overflow-hidden bg-ui-sunken lg:flex`}>
             {/* phones get a plain full-bleed preview; desktop gets device frames */}
-            <div className="size-full overflow-y-auto lg:hidden">
+            <div className="ed-mprev size-full overflow-y-auto lg:hidden">
               <PortfolioView portfolio={draft} className="min-h-full" />
             </div>
             <div className="hidden size-full items-center justify-center p-6 lg:flex">
@@ -434,7 +453,7 @@ export default function Editor() {
 
         {/* ───────── phone: edit / preview switch ───────── */}
         <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="w-56 rounded-2xl bg-ui-panel/90 p-1 shadow-[0_8px_30px_-8px_rgb(0_0_0/0.3),0_0_0_1px_var(--ui-line)] backdrop-blur-xl">
+          <div className="w-64 rounded-2xl bg-ui-panel/90 p-1 shadow-[0_8px_30px_-8px_rgb(0_0_0/0.3),0_0_0_1px_var(--ui-line)] backdrop-blur-xl">
             <Segmented
               id="mobile-view"
               value={mobileView}
