@@ -10,55 +10,13 @@
     "note": "One line of Gilroy SemiBold, with the bolt as a small mark after the period."
   },
   {
-    "slug": "03-italic-tag",
-    "name": "Italic tag",
-    "note": "Gilroy SemiBold Italic stacked in a skewed white tag, like a sticker."
-  },
-  {
-    "slug": "04-condensed-stack",
-    "name": "Condensed stack",
-    "note": "Bahnschrift condensed caps with a lime rule on the left. Reads like a label."
-  },
-  {
-    "slug": "05-serif-italic",
-    "name": "Serif italic",
-    "note": "Georgia Italic against the grotesk solo. Editorial contrast."
-  },
-  {
-    "slug": "06-impact-sticker",
-    "name": "Impact sticker",
-    "note": "Impact caps with a black extruded shadow and a slight tilt. Sticker energy."
-  },
-  {
-    "slug": "07-mono-cursor",
-    "name": "Mono cursor",
-    "note": "Lowercase Consolas with a blinking lime cursor. Terminal-coded for creators who build."
-  },
-  {
-    "slug": "08-underline-kit",
-    "name": "Underline Kit",
-    "note": "Regular 'Creator' with a lime 'Kit.' and an underline bar that can draw in."
-  },
-  {
-    "slug": "09-ring-badge",
-    "name": "Ring badge",
-    "note": "The circular bolt becomes the emblem and the text runs around it. Built for circle animation."
-  },
-  {
-    "slug": "10-two-tone-tags",
-    "name": "Two-tone tags",
-    "note": "Lime 'Creator' tag and a white 'Kit.' tag stacked offset, like the Made in Germany labels."
-  },
-  {
     "slug": "11-imported-solo-c-k-01",
     "name": "Imported: solo-c-k-01",
-    "note": "Your file from Downloads. Solo + CREATOR KIT on a skewed 3D block with lime side faces. Artwork is HTML inside the SVG, so the per-letter animation is not wired for this one.",
-    "animatable": false
+    "note": "Your file from Downloads. Solo + CREATOR KIT on a skewed 3D block with lime side faces. Plays: solo letters pop in, the CREATOR plate wipes open, letters rise one by one, then the KIT tab and its lime faces land."
   },
   {
     "slug": "12-imported-group-12",
     "name": "Imported: Group 12",
-    "note": "Your file from Downloads. Same 3D block treatment, smaller KIT tab. Artwork is HTML inside the SVG, so the per-letter animation is not wired for this one.",
-    "animatable": false
+    "note": "Your file from Downloads. Same 3D block treatment, smaller KIT tab. Plays: the CREATOR plate wipes open, letters rise one by one, then the KIT tab and its lime faces land."
   }
 ]

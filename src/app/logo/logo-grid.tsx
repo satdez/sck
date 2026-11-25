@@ -19,13 +19,13 @@ const CSS = `
 .logo-name { font-size: 15px; font-weight: 600; flex: 1; }
 .logo-note { margin: 0; font-size: 13px; color: #9a9a9a; line-height: 1.45; }
 .logo-stage { background: #0b0b0b; border-radius: 12px; min-height: 168px; display: grid; place-items: center; padding: 28px 20px; overflow: hidden; }
-.logo-stage svg { width: 100%; max-width: 440px; height: auto; display: block; overflow: visible; }
+.logo-stage > svg { width: 100%; max-width: 440px; height: auto; display: block; overflow: visible; }
 .logo-actions { display: flex; gap: 8px; }
 .logo-btn { appearance: none; border: 1px solid #2c2c2c; background: #1c1c1c; color: #f2f2f2; border-radius: 999px; padding: 6px 14px; font-size: 13px; cursor: pointer; text-decoration: none; }
 .logo-btn:hover { background: #242424; }
 .logo-btn:focus-visible { outline: 2px solid #96FF43; outline-offset: 2px; }
 
-.logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem { transform-box: fill-box; transform-origin: 50% 50%; }
+.logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem, .logo-stage .plate, .logo-stage .under, .logo-stage .face { transform-box: fill-box; transform-origin: 50% 50%; }
 .logo-stage.play .solo { animation: solo-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
 .logo-stage.play .ch { animation: ch-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 34ms + 260ms); }
 .logo-stage.play .box { animation: box-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: 180ms; }
@@ -34,6 +34,18 @@ const CSS = `
 .logo-stage.play .emblem { animation: bolt-in 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both; animation-delay: 300ms; }
 .logo-stage.play .cursor { animation: blink 1s steps(1) 1s infinite; }
 
+/* 3D block lockups (11, 12): plates wipe open from the left, lime faces slide out of them */
+.logo-stage .plate, .logo-stage .under { transform-origin: 0 50%; }
+.logo-stage .face { transform-origin: 0 50%; }
+.logo-stage.play .plate, .logo-stage.play .under { animation: plate-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.logo-stage.play .face { animation: face-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) both; }
+.logo-stage.play .p1 { animation-delay: 140ms; }
+.logo-stage.play .face.p1 { animation-delay: 380ms; }
+.logo-stage.play .p2 { animation-delay: 400ms; }
+.logo-stage.play .face.p2 { animation-delay: 640ms; }
+
+@keyframes plate-in { from { opacity: 0; transform: scaleX(0.35); } to { opacity: 1; transform: none; } }
+@keyframes face-in { from { opacity: 0; transform: translateX(-14px) scaleX(0.4); } to { opacity: 1; transform: none; } }
 @keyframes solo-in { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes ch-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes box-in { from { opacity: 0; transform: scaleX(0.6); } to { opacity: 1; transform: none; } }
@@ -46,13 +58,13 @@ const CSS = `
 }
 `;
 
-function LogoCard({ v, index }: { v: LogoVariation; index: number }) {
+function LogoCard({ v }: { v: LogoVariation }) {
   const [run, setRun] = useState(0);
   const playing = run > 0;
   return (
     <article className="logo-card">
       <div className="logo-meta">
-        <span className="logo-num">{String(index + 1).padStart(2, "0")}</span>
+        <span className="logo-num">{v.slug.slice(0, 2)}</span>
         <h2 className="logo-name">{v.name}</h2>
       </div>
       <p className="logo-note">{v.note}</p>
@@ -82,13 +94,12 @@ export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
       <header className="logo-head">
         <h1>Solo logo exploration</h1>
         <p>
-          Ten directions for the Creator Kit lockup. The solo wordmark and the circular bolt stay fixed; only the
-          Creator Kit type, placement and container change. Every letter is its own path so each one can animate.
+          The shortlist for the Creator Kit lockup. Every letter is its own path so each one can animate; press Play on a card to see it.
         </p>
       </header>
       <section className="logo-grid">
-        {variations.map((v, i) => (
-          <LogoCard key={v.slug} v={v} index={i} />
+        {variations.map((v) => (
+          <LogoCard key={v.slug} v={v} />
         ))}
       </section>
     </main>
