@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SAMPLE } from "@/lib/sample";
 import { CoinFavicon } from "@/components/coin-favicon";
+import { HomeLogo } from "@/components/home-logo";
 import { ClaimForm } from "./claim-form";
 
 export default function Home() {
@@ -9,9 +10,7 @@ export default function Home() {
     <div className="app relative min-h-dvh overflow-x-clip bg-[#0b0b0b] text-white">
       <CoinFavicon />
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-6">
-        {/* the 3D Solo Creator Kit lockup (solo-c-k-01.svg) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo/11-imported-solo-c-k-01.svg" alt="Solo Creator Kit" width={284} height={201} className="h-16 w-auto sm:h-20" />
+        <HomeLogo />
         <Link
           href="/editor"
           className="ui-press inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] hover:text-white"
