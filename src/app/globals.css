@@ -653,18 +653,33 @@ button.tile:active {
 @keyframes coin-o2 { 0%, 100% { --o: 0px; } 25% { --o: 1.6px; } 50% { --o: 0px; } 75% { --o: -1.6px; } }
 @keyframes coin-f2 { 0% { --f: 0px; } 25% { --f: 3.2px; } 25.1% { --f: -3.2px; } 50% { --f: 0px; } 75% { --f: 3.2px; } 75.1% { --f: -3.2px; } 100% { --f: 0px; } }
 
-/* on load: solo pops, CREATOR slides in from the lower right, KIT from the lower left */
-.hl.play .solo { animation: hl-solo-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
-.hl.play .b1 { animation: hl-blk-right 0.85s cubic-bezier(0.2, 0.9, 0.25, 1.1) 280ms both; }
-.hl.play .b2 { animation: hl-blk-left 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.1) 760ms both; }
-/* on hover / tap: a lighter replay (nothing fades out): letters hop, blocks re-seat, the coin flips */
-.hl.hov .solo { animation: hl-hop 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(var(--i) * 45ms); }
-.hl.hov .b1 { animation: hl-nudge-r 0.6s cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
-.hl.hov .b2 { animation: hl-nudge-l 0.6s cubic-bezier(0.2, 0.9, 0.25, 1.15) 90ms both; }
+/* Easing: every entrance starts gently (no hard ease-out, which is at full speed on frame one) and settles softly.
+   Hover replays begin from rest and wind up before springing back, so nothing jumps. */
+/* on load: solo pops, CREATOR slides in from the lower right, KIT from the lower left, letters flash the 4 colours */
+.hl.play .solo { animation: hl-solo-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
+.hl.play .b1 { animation: hl-blk-right 0.95s cubic-bezier(0.5, 0, 0.15, 1.06) 280ms both; }
+.hl.play .b2 { animation: hl-blk-left 0.85s cubic-bezier(0.5, 0, 0.15, 1.06) 760ms both; }
+/* on hover / tap: a lighter replay (nothing fades out): letters hop, blocks re-seat, the coin flips, letters flash again */
+.hl.hov .solo { animation: hl-hop 0.6s both; animation-delay: calc(var(--i) * 45ms); }
+.hl.hov .b1 { animation: hl-nudge-r 0.8s both; }
+.hl.hov .b2 { animation: hl-nudge-l 0.8s 90ms both; }
 @keyframes hl-solo-in { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
-@keyframes hl-blk-right { from { opacity: 0; translate: 150px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
-@keyframes hl-blk-left { from { opacity: 0; translate: -130px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
-@keyframes hl-hop { 0% { translate: 0 0; } 40% { translate: 0 -7px; } 100% { translate: 0 0; } }
-@keyframes hl-nudge-r { from { translate: 22px 14px; } to { translate: 0 0; } }
-@keyframes hl-nudge-l { from { translate: -20px 14px; } to { translate: 0 0; } }
-@media (prefers-reduced-motion: reduce) { .hl *, .logo-stage .coin { animation: none !important; } }
+@keyframes hl-blk-right { from { opacity: 0; translate: 150px 100px; } 40% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
+@keyframes hl-blk-left { from { opacity: 0; translate: -130px 100px; } 40% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
+@keyframes hl-hop { 0% { translate: 0 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 40% { translate: 0 -7px; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); } 100% { translate: 0 0; } }
+@keyframes hl-nudge-r { 0% { translate: 0 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 30% { translate: 10px 7px; animation-timing-function: cubic-bezier(0.5, 0, 0.15, 1.1); } 100% { translate: 0 0; } }
+@keyframes hl-nudge-l { 0% { translate: 0 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 30% { translate: -10px 7px; animation-timing-function: cubic-bezier(0.5, 0, 0.15, 1.1); } 100% { translate: 0 0; } }
+
+/* the letters inside the blocks flash through four colours in a quick wave, then settle back to white */
+.hl, .logo-stage { --c1: #6fd68b; --c2: #d87cf6; --c3: #f2516e; --c4: #f3c72e; }
+:is(.hl.play, .logo-stage.play) .b1 .lt { animation: lt-flash 0.7s calc(950ms + var(--j) * 45ms) both; }
+:is(.hl.play, .logo-stage.play) .b2 .lt { animation: lt-flash 0.7s calc(1500ms + var(--j) * 45ms) both; }
+.hl.hov .b1 .lt { animation: lt-flash2 0.7s calc(var(--j) * 45ms) both; }
+.hl.hov .b2 .lt { animation: lt-flash2 0.7s calc(315ms + var(--j) * 45ms) both; }
+@keyframes lt-flash  { 0% { fill: #fff; animation-timing-function: step-end; } 15% { fill: var(--c1); animation-timing-function: step-end; } 30% { fill: var(--c2); animation-timing-function: step-end; } 45% { fill: var(--c3); animation-timing-function: step-end; } 60% { fill: var(--c4); animation-timing-function: step-end; } 75%, 100% { fill: #fff; } }
+@keyframes lt-flash2 { 0% { fill: #fff; animation-timing-function: step-end; } 15% { fill: var(--c1); animation-timing-function: step-end; } 30% { fill: var(--c2); animation-timing-function: step-end; } 45% { fill: var(--c3); animation-timing-function: step-end; } 60% { fill: var(--c4); animation-timing-function: step-end; } 75%, 100% { fill: #fff; } }
+@media (prefers-reduced-motion: reduce) { .hl *, .logo-stage .coin, .logo-stage .lt { animation: none !important; } }
+
+/* the headline's "o": a coin the size of the letter it replaces (Gilroy's o is about 0.55em), flipping shortly after load */
+.coin-o { --coin-delay: 700ms; display: inline-block; width: 0.55em; height: 0.55em; vertical-align: -0.02em; margin: 0 0.012em 0 0.016em; }
+.coin-o.hov { --coin-delay: 0ms; }

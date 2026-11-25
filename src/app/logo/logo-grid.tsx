@@ -45,7 +45,7 @@ const CSS = `
 .logo-tone i { display: inline-flex; width: 22px; height: 22px; border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16); }
 .logo-tone i b { flex: 1; }
 .logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem { transform-box: fill-box; transform-origin: 50% 50%; }
-.logo-stage.play .solo { animation: solo-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
+.logo-stage.play .solo { animation: solo-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
 .logo-stage.play .ch { animation: ch-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 34ms + 260ms); }
 .logo-stage.play .box { animation: box-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: 180ms; }
 .logo-stage.play .bolt { animation: bolt-in 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both; animation-delay: 620ms; }
@@ -55,8 +55,8 @@ const CSS = `
 
 /* 3D block lockups (11, 12): each block is one solid piece (plate, lime face and letters move together).
    CREATOR slides in from the lower right, KIT from the lower left, and both settle with a small overshoot. */
-.logo-stage.play .b1 { animation: blk-right 0.85s cubic-bezier(0.2, 0.9, 0.25, 1.1) 280ms both; }
-.logo-stage.play .b2 { animation: blk-left 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.1) 760ms both; }
+.logo-stage.play .b1 { animation: blk-right 0.95s cubic-bezier(0.5, 0, 0.15, 1.06) 280ms both; }
+.logo-stage.play .b2 { animation: blk-left 0.85s cubic-bezier(0.5, 0, 0.15, 1.06) 760ms both; }
 @keyframes blk-right { from { opacity: 0; translate: 150px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
 @keyframes blk-left { from { opacity: 0; translate: -130px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
 

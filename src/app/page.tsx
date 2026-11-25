@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SAMPLE } from "@/lib/sample";
 import { CoinFavicon } from "@/components/coin-favicon";
+import { CoinO } from "@/components/coin-o";
 import { HomeLogo } from "@/components/home-logo";
 import { ClaimForm } from "./claim-form";
 
@@ -22,8 +23,8 @@ export default function Home() {
       <main className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pt-6 pb-16 sm:px-6 lg:min-h-[calc(100dvh-88px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)] lg:gap-6 lg:pt-0 lg:pb-10">
         {/* ── the ask ── */}
         <section className="enter relative z-20 flex min-w-0 flex-col items-start gap-7" style={{ ["--i" as string]: 0 }}>
-          <h1 className="max-w-[13ch] text-[clamp(2.75rem,9vw,4rem)] leading-[0.95] font-semibold tracking-[-0.04em] text-balance xl:text-[4.5rem]">
-            Your work, your numbers, one link.
+          <h1 aria-label="Your work, your numbers, one link." className="max-w-[13ch] text-[clamp(2.75rem,9vw,4rem)] leading-[0.95] font-semibold tracking-[-0.04em] text-balance xl:text-[4.5rem]">
+            Your work, your numbers, <span className="whitespace-nowrap"><CoinO />ne</span> link.
           </h1>
           <p className="max-w-[38ch] text-[17px] leading-relaxed text-pretty text-white/60 sm:text-lg">
             The page brands check before they book you. Build it in minutes, drop it in your bio.
