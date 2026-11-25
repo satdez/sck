@@ -45,7 +45,7 @@ const CSS = `
 .logo-tone i { display: inline-flex; width: 22px; height: 22px; border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16); }
 .logo-tone i b { flex: 1; }
 .logo-stage .solo, .logo-stage .ch, .logo-stage .box, .logo-stage .bolt, .logo-stage .emblem { transform-box: fill-box; transform-origin: 50% 50%; }
-.logo-stage.play .solo { animation: solo-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; animation-delay: calc(var(--i) * 70ms); }
+.logo-stage.play .solo { animation: solo-in 0.7s cubic-bezier(0.5, 0, 0.15, 1.06) both; animation: solo-in 0.7s linear(0, 0.009, 0.034, 0.071, 0.117, 0.171, 0.229, 0.29, 0.353, 0.415, 0.477, 0.536, 0.593, 0.646, 0.696, 0.742, 0.785, 0.823, 0.858, 0.889, 0.916, 0.939, 0.96, 0.977, 0.992, 1.004, 1.014, 1.022, 1.028, 1.032, 1.035, 1.037, 1.038, 1.038, 1.038, 1.037, 1.035, 1.033, 1.031, 1.029, 1) both; animation-delay: calc(var(--i) * 70ms); }
 .logo-stage.play .ch { animation: ch-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 34ms + 260ms); }
 .logo-stage.play .box { animation: box-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: 180ms; }
 .logo-stage.play .bolt { animation: bolt-in 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both; animation-delay: 620ms; }
@@ -55,8 +55,8 @@ const CSS = `
 
 /* 3D block lockups (11, 12): each block is one solid piece (plate, lime face and letters move together).
    CREATOR slides in from the lower right, KIT from the lower left, and both settle with a small overshoot. */
-.logo-stage.play .b1 { animation: blk-right 0.95s cubic-bezier(0.5, 0, 0.15, 1.06) 280ms both; }
-.logo-stage.play .b2 { animation: blk-left 0.85s cubic-bezier(0.5, 0, 0.15, 1.06) 760ms both; }
+.logo-stage.play .b1 { animation: blk-right 1s cubic-bezier(0.5, 0, 0.15, 1.06) 280ms both; animation: blk-right 1s linear(0, 0.013, 0.048, 0.101, 0.167, 0.242, 0.322, 0.405, 0.488, 0.568, 0.645, 0.717, 0.783, 0.842, 0.895, 0.941, 0.98, 1.012, 1.038, 1.059, 1.074, 1.085, 1.091, 1.094, 1.095, 1.092, 1.088, 1.083, 1.076, 1.069, 1.061, 1.053, 1.045, 1.038, 1.031, 1.024, 1.018, 1.013, 1.008, 1.004, 1) 280ms both; }
+.logo-stage.play .b2 { animation: blk-left 0.9s cubic-bezier(0.5, 0, 0.15, 1.06) 760ms both; animation: blk-left 0.9s linear(0, 0.013, 0.048, 0.101, 0.167, 0.242, 0.322, 0.405, 0.488, 0.568, 0.645, 0.717, 0.783, 0.842, 0.895, 0.941, 0.98, 1.012, 1.038, 1.059, 1.074, 1.085, 1.091, 1.094, 1.095, 1.092, 1.088, 1.083, 1.076, 1.069, 1.061, 1.053, 1.045, 1.038, 1.031, 1.024, 1.018, 1.013, 1.008, 1.004, 1) 760ms both; }
 @keyframes blk-right { from { opacity: 0; translate: 150px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
 @keyframes blk-left { from { opacity: 0; translate: -130px 100px; } 35% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
 

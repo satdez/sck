@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { COIN_MS, coinPose } from "@/lib/coin-motion";
 
 // The bolt from the Solo mark (src/app/icon.svg). The disc is drawn as an ellipse so it can turn; the bolt is cut clean through it.
 const BOLT =
   "M34.3935 10.6074C34.8683 9.812 33.8919 9.0402 33.2119 9.5723L14.7412 24.0351C14.1472 24.4701 14.3755 25.2848 14.9941 25.4473L23.1465 27.5889L16.6084 39.3828C16.131 40.1789 17.1096 40.9512 17.79 40.417L36.3027 25.9219C36.8085 25.5241 36.6461 24.7176 36.0078 24.5478L27.8652 22.3916L34.3935 10.6074Z";
 
 const SIZE = 64; // canvas px; browsers downscale to 16/32 for the tab
-const FRAMES = 18;
-export const FLIP_MS = 900;
+const FRAMES = 26;
+export const FLIP_MS = COIN_MS;
 const EVERY_MS = 6000;
 const FACE = "#96ff43";
 const FACE_LIGHT = "#c4ff85";
@@ -22,15 +23,18 @@ export function coinFrame(p: number, size = SIZE): string {
   const ctx = c.getContext("2d");
   if (!ctx) return "";
   ctx.scale(size / SIZE, size / SIZE); // draw in 64-unit space at any output size
-  const turn = (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2) * Math.PI * 2; // easeInOutCubic
+  const { turn, y: lift, sy } = coinPose(p); // the same toss as the CSS: wind-up, flight, squash-and-hop landing
   const cos = Math.cos(turn);
   const sin = Math.sin(turn);
   const R = 30; // coin radius
   const T = 7; // coin thickness
-  const toss = -2 * Math.sin(p * Math.PI);
+  const toss = lift * 2.2; // the tab icon has little headroom, so the toss is small
   const w = Math.max(Math.abs(cos), 0.001) * R;
   const cx = SIZE / 2;
   const cy = SIZE / 2 + toss;
+  ctx.translate(0, cy + R);
+  ctx.scale(1, sy); // landing squash, anchored at the coin's bottom
+  ctx.translate(0, -(cy + R));
 
   // edge: slices of the disc between the two faces, shaded like a polished cylinder (bright band up top, deep bands below)
   const off = (T / 2) * sin; // how far each face slides sideways as the coin turns

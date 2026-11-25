@@ -12,15 +12,15 @@ export function HomeLogoView({ markup }: { markup: string }) {
     const now = performance.now();
     if (!node || now - last.current < 700) return; // let the current one finish
     last.current = now;
-    node.classList.remove("hov");
+    node.classList.remove("hov", "cg");
     void node.offsetWidth; // restart the CSS animations
-    node.classList.add("hov");
+    node.classList.add("hov", "cg");
   };
 
   return (
     <div
       ref={el}
-      className="hl play inline-block"
+      className="hl play cg inline-block"
       onPointerEnter={replay}
       onClick={replay}
       dangerouslySetInnerHTML={{ __html: markup }}
