@@ -30,7 +30,7 @@ const R_IN = "rounded-[var(--ui-r)]"; // thumbnail inside it
 function Section({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex h-5 items-center justify-between">
+      <div className="flex min-h-5 items-center justify-between gap-3">
         <h3 className="text-[11px] font-semibold tracking-[0.08em] text-ui-muted uppercase">{title}</h3>
         {aside}
       </div>
@@ -43,6 +43,36 @@ function TextButton({ onClick, icon: Icon, children }: { onClick: () => void; ic
   return (
     <button type="button" onClick={onClick} className="ui-press inline-flex items-center gap-1 text-[11.5px] text-ui-muted transition-colors hover:text-ui-ink">
       <Icon className="size-3" /> {children}
+    </button>
+  );
+}
+
+/** A real, finger-sized action for the headline controls (the small TextButton is too tiny to hit on a phone). */
+function ActionButton({
+  onClick,
+  icon: Icon,
+  children,
+  label,
+  primary,
+}: {
+  onClick: () => void;
+  icon: LucideIcon;
+  children: ReactNode;
+  label?: string;
+  primary?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={`ui-press inline-flex h-10 items-center gap-2 rounded-full px-4 text-[13.5px] font-semibold transition-colors lg:h-9 lg:px-3.5 lg:text-[13px] ${
+        primary
+          ? "bg-ui-accent text-ui-accent-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.14)] hover:brightness-95"
+          : "text-ui-ink shadow-[inset_0_0_0_1px_var(--ui-line)] hover:bg-ui-sunken"
+      }`}
+    >
+      <Icon className="size-4" /> {children}
     </button>
   );
 }
@@ -447,15 +477,15 @@ export function DesignPanel({ theme, glowSrc, onChange }: { theme: ThemeSettings
       <Section
         title="Theme"
         aside={
-          <span className="flex items-center gap-3">
+          <span className="flex items-center gap-2">
             {customised && (
-              <TextButton icon={RotateCcw} onClick={() => onChange({ ...presetTheme(r.preset), layout: theme.layout })}>
+              <ActionButton icon={RotateCcw} label="Reset to the preset" onClick={() => onChange({ ...presetTheme(r.preset), layout: theme.layout })}>
                 Reset
-              </TextButton>
+              </ActionButton>
             )}
-            <TextButton icon={Shuffle} onClick={shuffle}>
+            <ActionButton primary icon={Shuffle} label="Shuffle colour, font and background" onClick={shuffle}>
               Shuffle
-            </TextButton>
+            </ActionButton>
           </span>
         }
       >
