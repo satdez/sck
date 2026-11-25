@@ -294,6 +294,9 @@ body {
   .group:hover .fan-side { translate: calc(-50% + var(--fan) * 62%) 0; rotate: calc(var(--fan) * 9.5deg); }
 }
 
+/* still mockups (landing phones): freeze background motion; paused, not removed, so particles stay scattered */
+.is-still .bd * { animation-play-state: paused !important; }
+
 /* ── phones ── */
 html { -webkit-tap-highlight-color: transparent; }
 a, button, [role="button"], label { touch-action: manipulation; }

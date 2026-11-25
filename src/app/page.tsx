@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { IPhoneFrame } from "@/components/editor/iphone-frame";
 import { PortfolioView } from "@/components/portfolio/portfolio-view";
-import { SoloCreatorKit } from "@/components/solo-logo";
 import { SAMPLE } from "@/lib/sample";
 import { getPreset, presetTheme, resolveTheme } from "@/lib/themes";
 import { ClaimForm } from "./claim-form";
@@ -11,7 +10,7 @@ function Phone({ preset }: { preset: string }) {
   const theme = presetTheme(getPreset(preset));
   const { palette } = resolveTheme(theme);
   return (
-    <IPhoneFrame barBg={palette.bg} barInk={palette.ink}>
+    <IPhoneFrame barBg={palette.bg} barInk={palette.ink} still>
       <PortfolioView portfolio={{ ...SAMPLE, theme }} className="min-h-full" />
     </IPhoneFrame>
   );
@@ -21,7 +20,9 @@ export default function Home() {
   return (
     <div className="app relative min-h-dvh overflow-x-clip bg-[#0b0b0b] text-white">
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-6">
-        <SoloCreatorKit height={26} />
+        {/* trial: the 3D lockup (solo-c-k-01.svg) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo/11-imported-solo-c-k-01.svg" alt="Solo Creator Kit" width={284} height={201} className="h-16 w-auto sm:h-20" />
         <Link
           href="/editor"
           className="ui-press inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] hover:text-white"
@@ -69,7 +70,12 @@ export default function Home() {
           >
             <Phone preset="acid" />
           </div>
-          <div className="fan-center enter absolute top-0 left-1/2 z-10 h-[490px] w-[240px] -translate-x-1/2 sm:h-[613px] sm:w-[300px]" style={{ ["--i" as string]: 1 }}>
+          <div
+            className="fan-center enter absolute top-0 left-1/2 z-10 h-[490px] w-[240px] -translate-x-1/2 sm:h-[613px] sm:w-[300px]"
+            style={{ ["--i" as string]: 1 }}
+            aria-hidden
+            inert
+          >
             <Phone preset="afterglow" />
           </div>
         </section>

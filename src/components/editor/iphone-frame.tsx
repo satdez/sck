@@ -23,9 +23,11 @@ type Props = {
   /** status bar tint, like Safari's theme-color */
   barBg: string;
   barInk: string;
+  /** marketing mockup: no scrolling or taps, background motion frozen */
+  still?: boolean;
 };
 
-export function IPhoneFrame({ children, barBg, barInk }: Props) {
+export function IPhoneFrame({ children, barBg, barInk, still }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -43,7 +45,7 @@ export function IPhoneFrame({ children, barBg, barInk }: Props) {
   }, []);
 
   return (
-    <div ref={host} className="flex size-full items-center justify-center">
+    <div ref={host} className={`flex size-full items-center justify-center ${still ? "is-still pointer-events-none select-none" : ""}`}>
       <div style={{ width: DEVICE_W * scale, height: DEVICE_H * scale }} className="relative shrink-0">
         <div
           className="absolute top-0 left-0 origin-top-left"
@@ -62,7 +64,7 @@ export function IPhoneFrame({ children, barBg, barInk }: Props) {
             {/* iOS 26 Safari is edge to edge: the page runs under the status bar (the page
                 itself is padded by --ios-top, so it still starts below the clock at rest) */}
             <div
-              className="ios-screen no-scrollbar size-full overflow-y-auto"
+              className={`ios-screen no-scrollbar size-full ${still ? "overflow-hidden" : "overflow-y-auto"}`}
               style={{ "--ios-top": `${STATUS_H}px`, "--bd-vh": `${SCREEN.h}px` } as CSSProperties}
             >
               {children}
