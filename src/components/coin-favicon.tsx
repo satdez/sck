@@ -8,17 +8,19 @@ const BOLT =
 
 const SIZE = 64; // canvas px; browsers downscale to 16/32 for the tab
 const FRAMES = 18;
-const FLIP_MS = 900;
+export const FLIP_MS = 900;
 const EVERY_MS = 6000;
 const FACE = "#96ff43";
 const RIM = "#4f9a1c"; // the coin's edge: lime in shade
 
 /** One frame of the coin at flip progress p (0..1): a full turn around its vertical axis, with a small toss. */
-function frame(p: number, bolt: Path2D): string {
+export function coinFrame(p: number, size = SIZE): string {
+  const bolt = new Path2D(BOLT);
   const c = document.createElement("canvas");
-  c.width = c.height = SIZE;
+  c.width = c.height = size;
   const ctx = c.getContext("2d");
   if (!ctx) return "";
+  ctx.scale(size / SIZE, size / SIZE); // draw in 64-unit space at any output size
   const turn = (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2) * Math.PI * 2; // easeInOutCubic
   const cos = Math.cos(turn);
   const sin = Math.sin(turn);
@@ -66,8 +68,7 @@ function frame(p: number, bolt: Path2D): string {
 export function CoinFavicon() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const bolt = new Path2D(BOLT);
-    const frames = Array.from({ length: FRAMES }, (_, i) => frame(i / (FRAMES - 1), bolt));
+    const frames = Array.from({ length: FRAMES }, (_, i) => coinFrame(i / (FRAMES - 1)));
     if (frames.some((f) => !f)) return;
 
     const links = () => Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]'));

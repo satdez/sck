@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CoinFavicon } from "@/components/coin-favicon";
+import { useEffect, useRef, useState } from "react";
+import { CoinFavicon, FLIP_MS, coinFrame } from "@/components/coin-favicon";
 
 export type LogoVariation = { slug: string; name: string; note: string; svg: string; animatable?: boolean };
 
@@ -83,6 +83,60 @@ function LogoCard({ v }: { v: LogoVariation }) {
   );
 }
 
+const COIN_FRAMES = 48;
+
+/** The tab icon's coin flip, big enough to judge, plus the 32px and 16px sizes a tab really shows. */
+function CoinCard() {
+  const [run, setRun] = useState(0);
+  const imgs = useRef<(HTMLImageElement | null)[]>([]);
+  const frames = useRef<string[]>([]);
+  const show = (i: number) => frames.current[i] && imgs.current.forEach((el) => el && (el.src = frames.current[i]));
+
+  useEffect(() => {
+    frames.current = Array.from({ length: COIN_FRAMES }, (_, i) => coinFrame(i / (COIN_FRAMES - 1), 256));
+    show(0);
+  }, []);
+
+  useEffect(() => {
+    if (!run) return;
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min((now - t0) / FLIP_MS, 1);
+      show(Math.round(t * (COIN_FRAMES - 1)));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [run]);
+
+  return (
+    <article className="logo-card">
+      <div className="logo-meta">
+        <span className="logo-num">Tab</span>
+        <h2 className="logo-name">Favicon: coin flip</h2>
+      </div>
+      <p className="logo-note">
+        The bolt flips like a 3D coin in the browser tab: once after load, then every few seconds. Shown here large, then at the
+        32px and 16px a tab really uses.
+      </p>
+      <div className="logo-stage" style={{ placeItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 28 }}>
+          {[160, 32, 16].map((px, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={px} ref={(el) => void (imgs.current[i] = el)} alt="" width={px} height={px} draggable={false} />
+          ))}
+        </div>
+      </div>
+      <div className="logo-actions">
+        <button type="button" className="logo-btn" onClick={() => setRun((r) => r + 1)}>
+          {run ? "Replay" : "Play animation"}
+        </button>
+      </div>
+    </article>
+  );
+}
+
 export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
   return (
     <main className="logo-page">
@@ -98,6 +152,7 @@ export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
         {variations.map((v) => (
           <LogoCard key={v.slug} v={v} />
         ))}
+        <CoinCard />
       </section>
     </main>
   );
