@@ -102,7 +102,7 @@ export function PortfolioView({ portfolio, className = "" }: { portfolio: Portfo
             href="https://sck.bio"
             target="_blank"
             rel="noopener"
-            className="ui-press inline-flex items-center gap-1.5 rounded-full bg-surface px-3.5 py-2 text-xs font-medium shadow-[inset_0_0_0_1px_var(--p-line)]"
+            className="ui-press inline-flex items-baseline gap-1.5 rounded-full bg-surface px-3.5 py-2 text-xs font-medium leading-none shadow-[inset_0_0_0_1px_var(--p-line)]"
           >
             <span className="text-muted">Made with</span>
             <SoloLogo height={12} color="currentColor" />
