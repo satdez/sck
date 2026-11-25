@@ -157,7 +157,7 @@ function CoinCard() {
 }
 
 export function LogoGrid({ variations }: { variations: LogoVariation[] }) {
-  const [toneIx, setToneIx] = useState(0);
+  const [toneIx, setToneIx] = useState(1); // Graphite: the home logo
   return (
     <main className="logo-page">
       <CoinFavicon />

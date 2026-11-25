@@ -9,9 +9,9 @@
 </svg>
 <div class="blk b1" style="position:absolute;left:0;top:0;width:294.5px;height:155.5px">
 <svg xmlns="http://www.w3.org/2000/svg" width="294.5" height="155.5" overflow="visible" style="position:absolute;left:0;top:0;overflow:visible">
-<path class="plate" d="M265.5 0.5L11.5 52.5V105L265.5 52.5V0.5Z" fill="black" stroke="black"/>
+<path class="plate" d="M265.5 0.5L11.5 52.5V105L265.5 52.5V0.5Z" fill="#1B1B1E" stroke="#1B1B1E"/>
 <path d="M294.5 47L266 0L265.5 53L294.5 93.5V47Z" fill="#96FF43"/>
-<path class="under" d="M11 105.5L265.5 53L294.5 93.5L43.5 140L11 105.5Z" fill="#0B0B0B"/>
+<path class="under" d="M11 105.5L265.5 53L294.5 93.5L43.5 140L11 105.5Z" fill="#2C2C30"/>
 </svg>
 <div style="position:absolute;left:0;top:0;margin:0;width:277.9025px;height:46.464px;transform-origin:0 0;transform:matrix(1, 0, 0, 1, 0, 30) translate(50%, 50%) translateZ(91px) rotateX(22deg) rotateY(-28.5deg) translate(-50%, -50%)">
 <svg xmlns="http://www.w3.org/2000/svg" width="277.902" height="46.464" overflow="visible" style="position:absolute;left:0;top:0;overflow:visible">
@@ -27,9 +27,9 @@
 </div>
 <div class="blk b2" style="position:absolute;left:0;top:0;width:294.5px;height:155.5px">
 <svg xmlns="http://www.w3.org/2000/svg" width="294.5" height="155.5" overflow="visible" style="position:absolute;left:0;top:0;overflow:visible">
-<path class="plate" d="M267.5 77L181.5 68.5L181.5 124L267.5 131V77Z" fill="black" stroke="black"/>
+<path class="plate" d="M267.5 77L181.5 68.5L181.5 124L267.5 131V77Z" fill="#1B1B1E" stroke="#1B1B1E"/>
 <path d="M155.5 94.5L181 68V124.5L155.5 149V94.5Z" fill="#96FF43"/>
-<path class="under" d="M181 124.5L268 131.5L238.5 155.5L155.5 149L181 124.5Z" fill="#0B0B0B"/>
+<path class="under" d="M181 124.5L268 131.5L238.5 155.5L155.5 149L181 124.5Z" fill="#2C2C30"/>
 </svg>
 <div style="position:absolute;left:0;top:0;margin:0;width:83.995px;height:44.8px;transform-origin:0 0;transform:matrix(1, 0, 0, 1, 183, 79) translate(50%, 50%) translateZ(50px) rotateX(10.3644deg) rotateY(25.5339deg) rotateZ(0.2946deg) translate(-50%, -50%)">
 <svg xmlns="http://www.w3.org/2000/svg" width="83.995" height="44.8" overflow="visible" style="position:absolute;left:0;top:0;overflow:visible">
