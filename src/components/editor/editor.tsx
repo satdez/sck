@@ -213,7 +213,7 @@ export default function Editor() {
             <span className="logo-chip hidden items-center gap-1.5 sm:inline-flex">
               <SoloLogo height={19} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo/12-imported-group-12.svg" alt="Creator Kit" width={284} height={178} className="h-10 w-auto" draggable={false} />
+              <img src="/logo/12-imported-group-12.svg" alt="Creator Kit" width={284} height={178} className="h-8 w-auto" draggable={false} />
             </span>
             {/* phones: just the bolt mark, so the page address gets the room */}
             <SoloMark className="size-8 sm:hidden" />
