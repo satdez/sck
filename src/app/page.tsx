@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { SAMPLE } from "@/lib/sample";
 import { CoinFavicon } from "@/components/coin-favicon";
@@ -12,11 +13,13 @@ export default function Home() {
       <CoinFavicon />
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-6">
         <HomeLogo />
+        {/* the whole suite (page, inbox, deals, store), not just the page editor */}
         <Link
-          href="/editor"
-          className="ui-press inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] hover:text-white"
+          href="/kit"
+          className="ui-press group inline-flex h-10 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] hover:text-white"
         >
-          Open editor
+          Open your kit
+          <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </header>
 
