@@ -47,6 +47,15 @@ export function RoleSwitch() {
   const path = usePathname();
   const role = roleFor(path);
   const ref = useRef<HTMLDivElement>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+  const [box, setBox] = useState({ w: 40, h: 40 });
+  useEffect(() => {
+    const el = btn.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBox({ w: el.offsetWidth, h: el.offsetHeight }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // the page you're on decides the role (deep links, back button)
   useEffect(() => {
@@ -113,8 +122,11 @@ export function RoleSwitch() {
       data-tucked={(tucked && !open) || undefined}
       className="fixed right-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 transition-[translate,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-tucked:pointer-events-none data-tucked:translate-x-[calc(100%+16px)] data-tucked:opacity-0 md:right-5 md:bottom-5 md:data-tucked:pointer-events-auto md:data-tucked:translate-x-0 md:data-tucked:opacity-100"
     >
+      <GooFilter />
+      <AnimatePresence>{open && <Blob w={box.w} h={box.h} />}</AnimatePresence>
       <AnimatePresence>{open && <Dial role={role} brandName={brandName} onPick={pick} onReset={reset} dragRef={drag} />}</AnimatePresence>
       <button
+        ref={btn}
         type="button"
         onPointerDown={onTriggerDown}
         onClick={() => {
@@ -124,7 +136,7 @@ export function RoleSwitch() {
         }}
         aria-expanded={open}
         aria-label={`Viewing as ${current.label}. Switch role`}
-        className="ui-press flex size-10 touch-none items-center justify-center gap-2 rounded-full bg-[#111] text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgb(0_0_0/0.6),0_0_0_1px_rgb(255_255_255/0.1)] md:h-11 md:w-auto md:justify-start md:pr-3.5 md:pl-1.5"
+        className="ui-press relative z-[51] flex size-10 touch-none items-center justify-center gap-2 rounded-full bg-[#111] text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgb(0_0_0/0.6),0_0_0_1px_rgb(255_255_255/0.1)] md:h-11 md:w-auto md:justify-start md:pr-3.5 md:pl-1.5"
       >
         <span className="grid size-8 place-items-center rounded-full bg-[#96ff43] text-black">
           <Icon className="size-4" />
@@ -139,6 +151,81 @@ export function RoleSwitch() {
 }
 
 /* ───────────── the dial ───────────── */
+
+/*
+ * One module, not a menu over a button: the dial, a neck and a ring round the trigger are drawn as plain
+ * shapes in one layer and melted together by an SVG "goo" filter (blur, then a hard alpha threshold), so
+ * they read as a single teardrop that grows out of the button. The dial's icons and text sit on top, crisp.
+ */
+const DIAL_RIGHT = 6; // the dial overhangs the trigger's right edge by this much
+const DIAL_LIFT = 14; // gap between the trigger's top and the dial's bottom
+const RING = 6; // dark collar round the trigger
+const ORIGIN = "85% 100%";
+const GROW = { type: "spring", stiffness: 360, damping: 30 } as const;
+const INK = "#0f0f0f";
+
+function GooFilter() {
+  return (
+    <svg aria-hidden width="0" height="0" className="absolute">
+      <defs>
+        <filter id="solo-goo" x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo" />
+          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
+function Blob({ w, h }: { w: number; h: number }) {
+  // the neck runs from the trigger's right-hand cap to the dial's centre
+  const ax = h / 2; // from the wrapper's right edge
+  const ay = h / 2; // from its bottom edge
+  const dx = SIZE / 2 - DIAL_RIGHT - ax; // leftwards
+  const dy = h + DIAL_LIFT + SIZE / 2 - ay; // upwards
+  const len = Math.hypot(dx, dy);
+  const deg = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const PAD = 40; // room round the shapes so the filter never clips them
+  return (
+    <motion.div
+      aria-hidden
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.14 } }}
+      className="pointer-events-none absolute z-40"
+      style={{ right: -PAD, bottom: -PAD, width: SIZE + 2 * PAD, height: h + DIAL_LIFT + SIZE + 2 * PAD, filter: "url(#solo-goo) drop-shadow(0 26px 40px rgb(0 0 0 / 0.55))" }}
+    >
+      {/* the collar round the trigger */}
+      <motion.span
+        initial={{ scale: 0.6 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.8 }}
+        transition={GROW}
+        className="absolute rounded-full"
+        style={{ right: PAD - RING, bottom: PAD - RING, width: w + RING * 2, height: h + RING * 2, background: INK }}
+      />
+      {/* the neck */}
+      <motion.span
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        exit={{ scaleX: 0 }}
+        transition={GROW}
+        className="absolute rounded-full"
+        style={{ right: PAD + ax, bottom: PAD + ay - 30, width: len, height: 60, background: INK, transformOrigin: "100% 50%", rotate: deg }}
+      />
+      {/* the dial's disc: same box, origin and spring as the dial, so they move as one */}
+      <motion.span
+        initial={{ scale: 0.55 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.7 }}
+        transition={GROW}
+        className="absolute rounded-full"
+        style={{ right: PAD - DIAL_RIGHT, bottom: PAD + h + DIAL_LIFT, width: SIZE, height: SIZE, background: INK, transformOrigin: ORIGIN }}
+      />
+    </motion.div>
+  );
+}
 
 const SIZE = 232;
 const C = SIZE / 2;
@@ -245,9 +332,9 @@ function Dial({ role, brandName, onPick, onReset, dragRef }: { role: Role; brand
       initial={{ opacity: 0, scale: 0.55, rotate: -24 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       exit={{ opacity: 0, scale: 0.7, rotate: -10, transition: { duration: 0.14 } }}
-      transition={{ type: "spring", stiffness: 360, damping: 30 }}
-      style={{ width: SIZE, height: SIZE, transformOrigin: "85% 100%" }}
-      className="absolute right-[-6px] bottom-[calc(100%+12px)] z-50 touch-none rounded-full bg-[#0f0f0f] text-white shadow-[0_28px_60px_-16px_rgb(0_0_0/0.7),0_0_0_1px_rgb(255_255_255/0.08)]"
+      transition={GROW}
+      style={{ width: SIZE, height: SIZE, right: -DIAL_RIGHT, bottom: `calc(100% + ${DIAL_LIFT}px)`, transformOrigin: ORIGIN }}
+      className="absolute z-50 touch-none rounded-full text-white"
       role="menu"
       aria-label="View as"
       onMouseLeave={() => setHover(null)}
