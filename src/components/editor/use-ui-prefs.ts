@@ -22,7 +22,7 @@ function subscribeDark(cb: () => void) {
 }
 const getDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-function load(): UiPrefs {
+export function loadUiPrefs(): UiPrefs {
   let stored: Partial<UiPrefs> | null = null;
   try {
     stored = JSON.parse(localStorage.getItem(KEY) ?? "null");
@@ -46,7 +46,7 @@ function load(): UiPrefs {
 }
 
 export function useUiPrefs() {
-  const [prefs, setState] = useState<UiPrefs>(load);
+  const [prefs, setState] = useState<UiPrefs>(loadUiPrefs);
   const systemDark = useSyncExternalStore(subscribeDark, getDark, () => false);
   const dark = prefs.mode === "system" ? systemDark : prefs.mode === "dark";
 

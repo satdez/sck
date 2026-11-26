@@ -3,6 +3,7 @@
 import { BadgeCheck, MapPin, Share } from "lucide-react";
 import type { Portfolio } from "@/lib/types";
 import { ShareSheet } from "../share-sheet";
+import { ReachOut } from "../solo/reach-out";
 
 type Variant = "side" | "center" | "cover";
 
@@ -37,12 +38,17 @@ export function Availability({ on }: { on: boolean }) {
   );
 }
 
-export function Actions({ slug, center }: { slug: string; center?: boolean }) {
+export function Actions({ slug, name, center }: { slug: string; name: string; center?: boolean }) {
   return (
     <div className={`flex gap-2 ${center ? "justify-center" : ""}`}>
-      <a href="#work-with-me" className="p-btn h-11 px-5 text-sm">
-        Work with me
-      </a>
+      <ReachOut
+        name={name}
+        trigger={
+          <button type="button" className="p-btn h-11 px-5 text-sm">
+            Reach out
+          </button>
+        }
+      />
       <ShareSheet
         slug={slug}
         trigger={
@@ -102,7 +108,7 @@ export function ProfileBlock({ portfolio, variant }: { portfolio: Portfolio; var
         <p className="px-1 text-[15px] leading-relaxed text-pretty">{p.bio}</p>
         <div className="px-1">{meta()}</div>
         <div className="px-1">
-          <Actions slug={portfolio.slug} />
+          <Actions slug={portfolio.slug} name={p.name} />
         </div>
       </div>
     );
@@ -122,7 +128,7 @@ export function ProfileBlock({ portfolio, variant }: { portfolio: Portfolio; var
         <p className="max-w-[38ch] text-[15px] leading-relaxed text-pretty">{p.bio}</p>
         {meta(true)}
         <Availability on={p.available} />
-        <Actions slug={portfolio.slug} center />
+        <Actions slug={portfolio.slug} name={p.name} center />
       </div>
     );
   }
@@ -141,7 +147,7 @@ export function ProfileBlock({ portfolio, variant }: { portfolio: Portfolio; var
             {handle}
           </div>
         </div>
-        <Actions slug={portfolio.slug} />
+        <Actions slug={portfolio.slug} name={p.name} />
       </div>
       <div className="flex flex-col gap-3 px-2 @3xl:flex-row @3xl:items-center @3xl:justify-between">
         <p className="max-w-[56ch] text-[15px] leading-relaxed text-pretty">{p.bio}</p>

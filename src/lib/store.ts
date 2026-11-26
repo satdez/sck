@@ -12,7 +12,7 @@ import type { Portfolio } from "./types";
  */
 const DIR = path.join(process.cwd(), "data", "pages");
 
-export const RESERVED = new Set(["editor", "api", "www", "app", "admin", "solo", "help", "login", "logo", "hero-render"]);
+export const RESERVED = new Set(["kit", "inbox", "brand", "editor", "api", "www", "app", "admin", "solo", "help", "login", "logo", "hero-render"]);
 
 export function normalizeSlug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 30);
@@ -37,7 +37,8 @@ export async function getPortfolio(slug: string): Promise<Portfolio | null> {
   cacheTag(pageTag(clean));
   const s = await read(clean);
   if (s && !("movedTo" in s)) return s;
-  return !s && clean === SAMPLE.slug ? SAMPLE : null;
+  if (s) return null;
+  return clean === SAMPLE.slug ? SAMPLE : null;
 }
 
 /** Where a renamed page went, if this address is an old one. */
@@ -46,6 +47,8 @@ export async function getMovedTo(slug: string): Promise<string | null> {
   const clean = normalizeSlug(slug);
   cacheTag(pageTag(clean));
   const s = await read(clean);
+  // the old demo address (fictional "Arun Rao") forwards to the Arun Maini sample
+  if (!s && clean === "arun") return SAMPLE.slug;
   return s && "movedTo" in s ? s.movedTo : null;
 }
 

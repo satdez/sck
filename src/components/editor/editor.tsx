@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   CircleAlert,
   CircleCheck,
   ExternalLink,
@@ -208,7 +209,18 @@ export default function Editor() {
       <div className="ed flex h-dvh flex-col" {...ui.rootProps}>
         {/* ───────── top bar ───────── */}
         <header className="ed-top flex h-14 shrink-0 items-center gap-3 border-b border-ui-line bg-ui-panel px-3 lg:px-4">
-          <Link href="/" aria-label="Solo Creator Kit home" className="ui-press flex shrink-0 items-center">
+          {/* back to the Creator Kit: the editor is one tool inside it */}
+          <Link
+            href="/kit"
+            aria-label="Back to Creator Kit"
+            title="Back to Creator Kit"
+            className="ui-press -ml-1 inline-flex h-9 shrink-0 items-center gap-1 rounded-xl pr-2.5 pl-2 text-sm font-medium text-ui-muted hover:bg-ui-sunken hover:text-ui-ink"
+          >
+            <ArrowLeft className="size-4" strokeWidth={2} />
+            <span className="hidden xl:inline">Kit</span>
+          </Link>
+          <span aria-hidden className="hidden h-5 w-px bg-ui-line sm:block" />
+          <Link href="/kit" aria-label="Solo Creator Kit home" className="ui-press flex shrink-0 items-center">
             {/* solo wordmark + the 3D Creator Kit ribbon, side by side to fit the bar */}
             <span className="logo-chip hidden items-center gap-1.5 sm:inline-flex">
               <SoloLogo height={19} />
@@ -243,7 +255,8 @@ export default function Editor() {
                 style={{ fieldSizing: "content" } as CSSProperties}
                 className="max-w-[16ch] min-w-[2ch] bg-transparent text-[16px] font-medium outline-none placeholder:text-ui-muted/60 sm:text-sm"
               />
-              <span className="text-ui-muted">.sck.bio</span>
+              {/* same size as the name it completes: 16px on phones (no iOS zoom on focus), 14px from sm */}
+              <span className="text-[16px] text-ui-muted sm:text-sm">.sck.bio</span>
               <span className="ml-2 hidden items-center sm:flex" aria-live="polite" title={slugHint}>
                 {slugState.status === "checking" && <LoaderCircle className="size-4 animate-spin text-ui-muted" />}
                 {slugState.status === "ok" && draft.slug && <CircleCheck className="size-4 text-green-600" />}

@@ -2,13 +2,14 @@
 
 import { ArrowUpRight, BadgeCheck, Mail, MapPin, Share, TrendingUp } from "lucide-react";
 import type { ReactNode } from "react";
-import { contactTarget, fmtCompact, sum } from "@/lib/format";
+import { fmtCompact, sum } from "@/lib/format";
 import type { Portfolio, SectionOf } from "@/lib/types";
 import { PLATFORM_COLOR, PLATFORM_LABEL, PlatformIcon } from "../platform-icon";
 import { ShareSheet } from "../share-sheet";
 import { LayoutContext } from "./layout-context";
 import { Avatar, Banner } from "./profile";
 import { SectionTiles } from "./sections";
+import { ReachOut } from "../solo/reach-out";
 
 /** Luma-style label with a hairline under it ("Hosted By", "About Event"). */
 function Label({ children }: { children: ReactNode }) {
@@ -42,7 +43,6 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
   const main = visible.filter((s) => s.type !== "socials" && s.type !== "contact");
   const reach = socials ? sum(socials.items.map((x) => x.followers)) : 0;
   const c = contact?.items[0];
-  const t = c ? contactTarget(c) : null;
 
   return (
     // Phones: the two columns dissolve (display: contents) and each block takes an order, so the
@@ -144,14 +144,14 @@ export function SplitLayout({ portfolio }: { portfolio: Portfolio }) {
           <p className="bg-surface-2 px-5 py-3 text-sm font-medium text-muted">{contact?.title ?? "Work with me"}</p>
           <div className="flex flex-col gap-4 p-5">
             <p className="text-[15px] leading-relaxed text-pretty">{c?.note ?? "Brand partnerships, launches and long-term collabs."}</p>
-            <a
-              href={t?.href ?? "#"}
-              {...(t?.external ? { target: "_blank", rel: "noopener noreferrer" } : null)}
-              className="p-btn h-12 w-full text-[15px]"
-              style={{ borderRadius: "calc(var(--p-radius) * 0.6)" }}
-            >
-              <Mail className="size-4" /> Request a collab
-            </a>
+            <ReachOut
+              name={p.name}
+              trigger={
+                <button type="button" className="p-btn h-12 w-full text-[15px]" style={{ borderRadius: "calc(var(--p-radius) * 0.6)" }}>
+                  <Mail className="size-4" /> Reach out
+                </button>
+              }
+            />
             {c?.email && <p className="text-center text-xs text-muted select-all">{c.email}</p>}
           </div>
         </section>

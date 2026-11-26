@@ -11,6 +11,9 @@ import { SplitLayout } from "./split";
 import { ThemeScope } from "./theme-scope";
 import { ShareSheet } from "../share-sheet";
 import { SoloLogo } from "../solo-logo";
+import { ReachOut } from "../solo/reach-out";
+import { DealHistory } from "../solo/deal-history";
+import { FanShop } from "../solo/fan-shop";
 
 const sectionAnchor = (s: Section) => (s.type === "contact" ? "work-with-me" : s.id);
 
@@ -97,6 +100,9 @@ export function PortfolioView({ portfolio, className = "" }: { portfolio: Portfo
           </div>
         )}
 
+        <DealHistory slug={portfolio.slug} wide={layout !== "list"} />
+        <FanShop slug={portfolio.slug} name={portfolio.profile.name} wide={layout !== "list"} />
+
         <footer className="flex justify-center pt-2 pb-10">
           <a
             href="https://sck.bio"
@@ -114,9 +120,14 @@ export function PortfolioView({ portfolio, className = "" }: { portfolio: Portfo
             whatever frame renders the page, and rests after the footer at the very end. */}
         {hasContact && (
           <div className="p-cta sticky z-20 flex gap-2 px-4 pt-2 @3xl:hidden">
-            <a href="#work-with-me" className="p-btn h-12 flex-1 text-[15px] shadow-[0_10px_30px_-10px_rgb(0_0_0/0.45)]">
-              <Mail className="size-4" /> Work with me
-            </a>
+            <ReachOut
+              name={portfolio.profile.name}
+              trigger={
+                <button type="button" className="p-btn h-12 flex-1 text-[15px] shadow-[0_10px_30px_-10px_rgb(0_0_0/0.45)]">
+                  <Mail className="size-4" /> Reach out
+                </button>
+              }
+            />
             <ShareSheet
               slug={portfolio.slug}
               trigger={

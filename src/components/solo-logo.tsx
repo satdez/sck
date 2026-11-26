@@ -1,3 +1,4 @@
+import { CoinO } from "./coin-o";
 /** Solo wordmark. Defaults to brand lime; pass color="currentColor" to follow the surrounding text. */
 export const SOLO_LIME = "#96FF43";
 
@@ -26,6 +27,35 @@ export function SoloLogo({ height = 20, color = SOLO_LIME, className }: { height
         d="M137.001 18.9961C143.982 18.9962 149.894 21.4271 154.736 26.2881C159.579 31.086 162 36.9886 162 43.9961C162 51.0036 159.579 56.9061 154.736 61.7041C149.894 66.5651 143.982 68.996 137.001 68.9961C130.02 68.9961 124.107 66.5968 119.265 61.7988C114.422 56.9377 112.001 51.0036 112.001 43.9961C112.001 36.9886 114.422 31.086 119.265 26.2881C124.107 21.427 130.02 18.9961 137.001 18.9961ZM137.001 32.8223C133.919 32.8223 131.34 33.8639 129.265 35.9473C127.189 38.0306 126.151 40.7134 126.151 43.9961C126.151 47.2788 127.189 49.9616 129.265 52.0449C131.34 54.1283 133.919 55.1699 137.001 55.1699C140.083 55.1698 142.661 54.1281 144.736 52.0449C146.812 49.9616 147.85 47.2788 147.85 43.9961C147.85 40.7134 146.812 38.0306 144.736 35.9473C142.661 33.864 140.083 32.8224 137.001 32.8223Z"
       />
     </svg>
+  );
+}
+
+
+/**
+ * "solo" with its first o as the live bolt coin (CoinO): tossed on load, every 4 to 5 s, and on tap.
+ * Phones use it in the app bar instead of the full Creator Kit lockup.
+ */
+export function SoloCoinWordmark({ height = 22 }: { height?: number }) {
+  const width = (height * 162) / 69;
+  return (
+    <span role="img" aria-label="Solo" className="relative inline-block" style={{ width, height }}>
+      <svg viewBox="0 0 162 69" width={width} height={height} fill={SOLO_LIME} aria-hidden className="block" xmlns="http://www.w3.org/2000/svg">
+        <path d="M110 69H96.001V0H110V69Z" />
+        <path d="M21.2275 18.9961C25.2336 18.9961 28.8843 19.88 32.1797 21.6475C35.4752 23.352 38.1248 25.8461 40.1279 29.1289L27.7217 35.6631C26.1709 32.8853 24.0061 31.4961 21.2275 31.4961C18.5137 31.4961 17.1563 32.3799 17.1562 34.1475C17.1562 35.0944 17.9646 35.8833 19.5801 36.5146C21.26 37.0828 23.2628 37.6832 25.5889 38.3145C27.915 38.8826 30.2413 39.64 32.5674 40.5869C34.8936 41.5339 36.865 43.1127 38.4805 45.3223C40.1604 47.4687 41 50.1831 41 53.4658C41 58.5794 39.0616 62.4618 35.1846 65.1133C31.3075 67.7016 26.5261 68.9961 20.8398 68.9961C10.6303 68.9961 3.68323 65.2401 0 57.7275L12.6006 50.7197C13.8929 54.4445 16.6397 56.3066 20.8398 56.3066C24.3291 56.3066 26.0742 55.3281 26.0742 53.3711C26.0742 52.4241 25.2337 51.6352 23.5537 51.0039C21.9383 50.3726 19.9677 49.7723 17.6416 49.2041C15.3154 48.5728 12.9883 47.7839 10.6621 46.8369C8.33615 45.8269 6.33324 44.2803 4.65332 42.1973C3.03788 40.1139 2.22949 37.5567 2.22949 34.5264C2.2295 29.6023 4.03893 25.783 7.65723 23.0684C11.3404 20.3537 15.8643 18.9961 21.2275 18.9961Z" />
+        <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M137.001 18.9961C143.982 18.9962 149.894 21.4271 154.736 26.2881C159.579 31.086 162 36.9886 162 43.9961C162 51.0036 159.579 56.9061 154.736 61.7041C149.894 66.5651 143.982 68.996 137.001 68.9961C130.02 68.9961 124.107 66.5968 119.265 61.7988C114.422 56.9377 112.001 51.0036 112.001 43.9961C112.001 36.9886 114.422 31.086 119.265 26.2881C124.107 21.427 130.02 18.9961 137.001 18.9961ZM137.001 32.8223C133.919 32.8223 131.34 33.8639 129.265 35.9473C127.189 38.0306 126.151 40.7134 126.151 43.9961C126.151 47.2788 127.189 49.9616 129.265 52.0449C131.34 54.1283 133.919 55.1699 137.001 55.1699C140.083 55.1698 142.661 54.1281 144.736 52.0449C146.812 49.9616 147.85 47.2788 147.85 43.9961C147.85 40.7134 146.812 38.0306 144.736 35.9473C142.661 33.864 140.083 32.8224 137.001 32.8223Z"
+      />
+      </svg>
+      {/* the bolt o: same box as in the wordmark (x 43-94, y 19-69 of 162 x 69) */}
+      <span
+        className="absolute [&_.coin-o]:!m-0 [&_.coin-o]:!block [&_.coin-o]:!size-full"
+        style={{ left: `${(43 / 162) * 100}%`, top: `${(19 / 69) * 100}%`, width: `${(51 / 162) * 100}%`, height: `${(50 / 69) * 100}%` }}
+      >
+        <CoinO />
+      </span>
+    </span>
   );
 }
 
@@ -79,15 +109,34 @@ export function SoloBadge({ height = 16 }: { height?: number }) {
 }
 
 /** The bolt-in-a-circle mark (favicon). For tight spots like the phone top bar. */
-export function SoloMark({ className = "" }: { className?: string }) {
+export function SoloMark({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <svg viewBox="0 0 51 50" className={className} role="img" aria-label="Solo" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 51 50" className={className} style={style} role="img" aria-label="Solo" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
         fill="#96FF43"
         d="M25.501 0C39.5837 0.0006 50.9989 11.1943 50.999 25.001C50.9984 38.8073 39.5834 49.9993 25.501 50C11.4179 50 0.0005 38.8077 0 25.001C0.0001 11.1938 11.4177 0 25.501 0ZM34.3935 10.6074C34.8683 9.812 33.8919 9.0402 33.2119 9.5723L14.7412 24.0351C14.1472 24.4701 14.3755 25.2848 14.9941 25.4473L23.1465 27.5889L16.6084 39.3828C16.131 40.1789 17.1096 40.9512 17.79 40.417L36.3027 25.9219C36.8085 25.5241 36.6461 24.7176 36.0078 24.5478L27.8652 22.3916L34.3935 10.6074Z"
       />
+    </svg>
+  );
+}
+
+/**
+ * "Your Solo link": the lime coin with a chain link whose middle bar is the Solo bolt.
+ * Used for the creator's page (name.sck.bio), e.g. the Edit page button.
+ */
+export function SoloLinkMark({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} role="img" aria-label="Your sck.bio link" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="12" fill="#96FF43" />
+      {/* chain ends */}
+      <g fill="none" stroke="#0b0b0b" strokeWidth="2.1" strokeLinecap="round">
+        <path d="M8.6 15.6H7.4a3.6 3.6 0 0 1 0-7.2h1.2" />
+        <path d="M15.4 8.4h1.2a3.6 3.6 0 0 1 0 7.2h-1.2" />
+      </g>
+      {/* the Solo bolt holds them together */}
+      <path d="M13.9 4.6 8.7 12.6h3.5l-2.1 6.8 5.2-8h-3.5z" fill="#0b0b0b" />
     </svg>
   );
 }

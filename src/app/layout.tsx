@@ -19,7 +19,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${fontVariables} h-full antialiased`}>
       <body className="min-h-full">
         {children}
-        <Toaster position="bottom-center" richColors={false} toastOptions={{ className: "font-sans" }} />
+        <Toaster position="bottom-center" theme="system" richColors={false} toastOptions={{ className: "font-sans" }} />
       </body>
     </html>
   );

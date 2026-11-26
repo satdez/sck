@@ -13,7 +13,7 @@ export async function checkSlug(raw: string, ownerSlug?: string): Promise<{ ok: 
   if (RESERVED.has(slug)) return { ok: false, reason: "That name is reserved." };
   if (slug === ownerSlug) return { ok: true };
   // the demo page is "taken" so people see what a clash looks like
-  if (slug === SAMPLE.slug) return { ok: false, reason: "Taken. Try another." };
+  if (slug === SAMPLE.slug || slug === "arun") return { ok: false, reason: "Taken. Try another." };
   return (await isTaken(slug)) ? { ok: false, reason: "Taken. Try another." } : { ok: true };
 }
 

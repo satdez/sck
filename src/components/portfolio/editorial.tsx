@@ -8,6 +8,7 @@ import { PLATFORM_LABEL, PlatformIcon } from "../platform-icon";
 import { LayoutContext } from "./layout-context";
 import { Actions, Availability, Avatar, Banner } from "./profile";
 import { SectionTiles } from "./sections";
+import { ReachOut } from "../solo/reach-out";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -130,7 +131,7 @@ function IndexList({ s }: { s: SectionOf<"socials"> }) {
   );
 }
 
-function Closing({ s }: { s: SectionOf<"contact"> }) {
+function Closing({ s, name }: { s: SectionOf<"contact">; name: string }) {
   const c = s.items[0];
   if (!c) return null;
   const t = contactTarget(c);
@@ -139,9 +140,15 @@ function Closing({ s }: { s: SectionOf<"contact"> }) {
       <p className="max-w-[16ch] font-display text-[clamp(2.4rem,8cqw,5.5rem)] leading-[0.92] tracking-[-0.035em]">{s.title}.</p>
       <div className="flex flex-col gap-3 @3xl:items-end">
         <p className="max-w-[40ch] text-[15px] text-muted @3xl:text-right">{c.note}</p>
-        <a href={t.href} {...(t.external ? { target: "_blank", rel: "noopener noreferrer" } : null)} className="p-btn h-12 px-6 text-[15px]">
-          <Mail className="size-4" /> {t.label}
-        </a>
+        <ReachOut
+          name={name}
+          trigger={
+            <button type="button" className="p-btn h-12 px-6 text-[15px]">
+              <Mail className="size-4" /> Reach out
+            </button>
+          }
+        />
+        {c.email && <a href={t.href} className="text-xs text-muted underline-offset-4 hover:underline">or email {c.email}</a>}
         <p className="text-xs text-muted">{c.responseTime}</p>
       </div>
     </div>
@@ -169,7 +176,7 @@ export function EditorialLayout({ portfolio }: { portfolio: Portfolio }) {
       case "socials":
         return <IndexList s={s} />;
       case "contact":
-        return <Closing s={s} />;
+        return <Closing s={s} name={p.name} />;
       default:
         return (
           <LayoutContext.Provider value={{ layout: "editorial", base: 6 + i * 2 }}>
@@ -220,7 +227,7 @@ export function EditorialLayout({ portfolio }: { portfolio: Portfolio }) {
               <Avatar src={p.avatar} name={p.name} className="size-12 ring-0" />
               <Availability on={p.available} />
             </div>
-            <Actions slug={portfolio.slug} />
+            <Actions slug={portfolio.slug} name={portfolio.profile.name} />
           </div>
         </div>
 
