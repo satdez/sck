@@ -801,3 +801,6 @@ button.tile:active {
   .notch-rim { animation: none; }
 }
 
+/* Light theme: brand lime glows off white, so the app-bar wordmark (letters and coin) steps down a shade. */
+:root[data-ui-dark="false"] .solo-wm { filter: brightness(0.78) saturate(1.3); }
+

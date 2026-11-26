@@ -91,28 +91,89 @@ export function RoleSwitch() {
   };
   const Icon = current.icon;
 
-  // press the button and slide: the dial opens under the thumb and follows it; lift on an item to pick it
+  // Drag the button anywhere; it snaps to the nearest side at that height (like AssistiveTouch) and stays there.
+  const [vp, setVp] = useState<{ w: number; h: number } | null>(null);
+  const [fab, setFab] = useState<Fab | null>(null);
+  const [dragAt, setDragAt] = useState<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const size = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    size();
+    try {
+      const saved = JSON.parse(localStorage.getItem(FAB_KEY) ?? "null") as Fab | null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser-only position, read after hydration
+      if (saved && (saved.side === "left" || saved.side === "right") && typeof saved.bottom === "number") setFab(saved);
+    } catch {}
+    window.addEventListener("resize", size);
+    return () => window.removeEventListener("resize", size);
+  }, []);
+  const margin = vp && vp.w >= 768 ? 20 : 12;
+  const minBottom = vp && vp.w >= 768 ? 20 : 72; // clear of the phone tab bar
+  // keep room above for the dial: header + gap + dial
+  const maxBottom = vp ? Math.max(minBottom, vp.h - 64 - DIAL_LIFT - SIZE - box.h - 8) : minBottom;
+  const side: "left" | "right" = fab?.side ?? "right";
+  const place = (): React.CSSProperties | undefined => {
+    if (dragAt) return { left: dragAt.x, top: dragAt.y, right: "auto", bottom: "auto", transition: "none" };
+    if (!fab || !vp) return undefined; // first visit: the CSS corner
+    const bottom = Math.min(Math.max(fab.bottom, minBottom), maxBottom);
+    return {
+      left: fab.side === "left" ? margin : vp.w - margin - box.w,
+      top: vp.h - bottom - box.h,
+      right: "auto",
+      bottom: "auto",
+      transition: "left 420ms cubic-bezier(0.22,1.25,0.36,1), top 420ms cubic-bezier(0.22,1.25,0.36,1), translate 300ms, opacity 300ms",
+    };
+  };
+
+  // One press, three meanings:
+  //   tap                      opens or closes the dial (onClick)
+  //   drag straight away       moves the button; let go and it snaps to the nearest side
+  //   hold ~a quarter second   opens the dial under the thumb; slide and lift on an item to pick it
   const drag = useRef<DialDrag | null>(null);
-  const pressOpened = useRef(false);
+  const swallowClick = useRef(false);
   const onTriggerDown = (e: ReactPointerEvent) => {
     if (e.button !== 0) return;
-    if (!open) {
-      setOpen(true);
-      pressOpened.current = true;
-      haptic();
-    }
+    swallowClick.current = false; // a drag never produces a click, so last gesture's flag must not eat this tap
+    const el = ref.current!.getBoundingClientRect();
     const start = { x: e.clientX, y: e.clientY };
-    let moved = false;
+    const grab = { x: e.clientX - el.left, y: e.clientY - el.top };
+    let mode: "undecided" | "move" | "pick" = open ? "pick" : "undecided";
+    const hold = window.setTimeout(() => {
+      if (mode !== "undecided") return;
+      mode = "pick";
+      swallowClick.current = true;
+      setOpen(true);
+      haptic();
+    }, 260);
     const move = (ev: PointerEvent) => {
-      if (!moved && Math.hypot(ev.clientX - start.x, ev.clientY - start.y) < 8) return;
-      moved = true;
-      drag.current?.move(ev.clientX, ev.clientY);
+      const far = Math.hypot(ev.clientX - start.x, ev.clientY - start.y) >= 8;
+      if (mode === "undecided" && far) {
+        mode = "move";
+        swallowClick.current = true;
+        window.clearTimeout(hold);
+        haptic();
+      }
+      if (mode === "move") setDragAt({ x: ev.clientX - grab.x, y: ev.clientY - grab.y });
+      else if (mode === "pick" && far) drag.current?.move(ev.clientX, ev.clientY);
     };
     const up = (ev: PointerEvent) => {
+      window.clearTimeout(hold);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", up);
-      if (moved) drag.current?.up(ev.clientX, ev.clientY);
+      if (mode === "move") {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const cx = ev.clientX - grab.x + el.width / 2;
+        const next: Fab = { side: cx < w / 2 ? "left" : "right", bottom: Math.round(h - (ev.clientY - grab.y) - el.height) };
+        setFab(next);
+        setDragAt(null);
+        haptic("pick");
+        try {
+          localStorage.setItem(FAB_KEY, JSON.stringify(next));
+        } catch {}
+      } else if (mode === "pick" && Math.hypot(ev.clientX - start.x, ev.clientY - start.y) >= 8) {
+        drag.current?.up(ev.clientX, ev.clientY);
+      }
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
@@ -127,24 +188,26 @@ export function RoleSwitch() {
       // a press-and-hold is how you drive the dial: keep the phone's long-press menu and text selection out of it,
       // or the browser takes over the touch (pointercancel) before the thumb starts to slide
       onContextMenu={(e) => e.preventDefault()}
-      style={{ WebkitTouchCallout: "none", touchAction: "none" }}
-      className="fixed right-3 select-none bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 transition-[translate,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-tucked:pointer-events-none data-tucked:translate-x-[calc(100%+16px)] data-tucked:opacity-0 md:right-5 md:bottom-5 md:data-tucked:pointer-events-auto md:data-tucked:translate-x-0 md:data-tucked:opacity-100"
+      data-side={side}
+      data-dragging={dragAt ? "" : undefined}
+      style={{ WebkitTouchCallout: "none", touchAction: "none", ...place() }}
+      className="fixed right-3 select-none bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 transition-[translate,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-dragging:z-[60] data-tucked:pointer-events-none data-tucked:translate-x-[calc(100%+16px)] data-tucked:opacity-0 data-tucked:data-[side=left]:-translate-x-[calc(100%+16px)] md:right-5 md:bottom-5 md:data-tucked:pointer-events-auto md:data-tucked:translate-x-0 md:data-tucked:opacity-100 md:data-tucked:data-[side=left]:translate-x-0"
     >
-      <AnimatePresence>{open && <Blob w={box.w} h={box.h} />}</AnimatePresence>
-      <AnimatePresence>{open && <Dial role={role} brandName={brandName} onPick={pick} onReset={reset} onPrefs={prefs} dragRef={drag} h={box.h} />}</AnimatePresence>
+      <AnimatePresence>{open && <Blob w={box.w} h={box.h} side={side} />}</AnimatePresence>
+      <AnimatePresence>{open && <Dial role={role} brandName={brandName} onPick={pick} onReset={reset} onPrefs={prefs} dragRef={drag} h={box.h} side={side} />}</AnimatePresence>
       <button
         ref={btn}
         type="button"
         style={{ touchAction: "none" }}
         onPointerDown={onTriggerDown}
         onClick={() => {
-          // the press already opened it; a plain click on an open dial closes it
-          if (pressOpened.current) pressOpened.current = false;
+          // a drag or a hold already did its job; only a plain tap toggles
+          if (swallowClick.current) swallowClick.current = false;
           else setOpen((o) => !o);
         }}
         aria-expanded={open}
         aria-label={`Viewing as ${current.label}. Switch role`}
-        className="ui-press relative z-[51] flex size-10 touch-none items-center justify-center gap-2 rounded-full bg-[#111] text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgb(0_0_0/0.6),0_0_0_1px_rgb(255_255_255/0.1)] md:h-11 md:w-auto md:justify-start md:pr-3.5 md:pl-1.5"
+        className="ui-press relative z-[51] flex size-10 touch-none cursor-grab active:cursor-grabbing items-center justify-center gap-2 rounded-full bg-[#111] text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgb(0_0_0/0.6),0_0_0_1px_rgb(255_255_255/0.1)] md:h-11 md:w-auto md:justify-start md:pr-3.5 md:pl-1.5"
       >
         <span className="grid size-8 place-items-center rounded-full bg-[#96ff43] text-black">
           <Icon className="size-4" />
@@ -170,6 +233,8 @@ const DIAL_RIGHT = 6; // the dial overhangs the trigger's right edge by this muc
 const DIAL_LIFT = 14; // gap between the trigger's top and the dial's bottom
 const RING = 6; // dark collar round the trigger
 const GROW = { type: "spring", stiffness: 360, damping: 30 } as const;
+const FAB_KEY = "solo.switcher.place";
+type Fab = { side: "left" | "right"; bottom: number };
 const INK = "#0f0f0f";
 
 type P = [number, number];
@@ -195,7 +260,7 @@ function bridge(c1: P, r1: number, c2: P, r2: number, v = 0.55, handle = 2.4) {
   return `M${pt(p1)} C${pt(h1)} ${pt(h3)} ${pt(p3)} A${r2} ${r2} 0 ${d > r1 ? 1 : 0} 0 ${pt(p4)} C${pt(h4)} ${pt(h2)} ${pt(p2)}Z`;
 }
 
-function Blob({ w, h }: { w: number; h: number }) {
+function Blob({ w, h, side }: { w: number; h: number; side: "left" | "right" }) {
   const PAD = 30; // room for the shadow
   const W = SIZE + PAD * 2;
   const H = h + DIAL_LIFT + SIZE + PAD * 2;
@@ -212,13 +277,14 @@ function Blob({ w, h }: { w: number; h: number }) {
     </>
   );
   return (
+    // drawn for a button on the right; mirrored as a whole when the button sits on the left
+    <div aria-hidden className="pointer-events-none absolute z-40" style={{ [side]: -PAD, bottom: -PAD, width: W, height: H, transform: side === "left" ? "scaleX(-1)" : undefined }}>
     <motion.svg
-      aria-hidden
       width={W}
       height={H}
       viewBox={`0 0 ${W} ${H}`}
-      className="pointer-events-none absolute z-40 overflow-visible"
-      style={{ right: -PAD, bottom: -PAD, transformOrigin: `${cap[0]}px ${cap[1]}px`, filter: "drop-shadow(0 26px 40px rgb(0 0 0 / 0.55))" }}
+      className="block overflow-visible"
+      style={{ transformOrigin: `${cap[0]}px ${cap[1]}px`, filter: "drop-shadow(0 26px 40px rgb(0 0 0 / 0.55))" }}
       initial={{ scale: 0.2, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0.4, opacity: 0, transition: { duration: 0.16 } }}
@@ -236,6 +302,7 @@ function Blob({ w, h }: { w: number; h: number }) {
       </g>
       <g fill={INK}>{shape}</g>
     </motion.svg>
+    </div>
   );
 }
 
@@ -272,7 +339,7 @@ type DialDrag = { move: (x: number, y: number) => void; up: (x: number, y: numbe
 /** shortest way round: 350 to 10 degrees turns 20, not 340 */
 const nearest = (from: number, to: number) => from + ((((to - from) % 360) + 540) % 360) - 180;
 
-function Dial({ role, brandName, onPick, onReset, onPrefs, dragRef, h }: { role: Role; brandName: string; onPick: (r: Role) => void; onReset: () => void; onPrefs: () => void; dragRef: MutableRefObject<DialDrag | null>; h: number }) {
+function Dial({ role, brandName, onPick, onReset, onPrefs, dragRef, h, side }: { role: Role; brandName: string; onPick: (r: Role) => void; onReset: () => void; onPrefs: () => void; dragRef: MutableRefObject<DialDrag | null>; h: number; side: "left" | "right" }) {
   const slots: Slot[] = [
     ...ROLES.map((r, i) => ({ id: r.role, angle: i * 72, label: r.label, hint: r.role === "brand" ? brandName : r.hint, icon: r.icon })),
     { id: "prefs", angle: 216, label: "Preferences", hint: "theme, colour, type", icon: SlidersHorizontal },
@@ -347,7 +414,7 @@ function Dial({ role, brandName, onPick, onReset, onPrefs, dragRef, h }: { role:
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       exit={{ opacity: 0, scale: 0.4, rotate: -8, transition: { duration: 0.16 } }}
       transition={GROW}
-      style={{ touchAction: "none", width: SIZE, height: SIZE, right: -DIAL_RIGHT, bottom: `calc(100% + ${DIAL_LIFT}px)`, transformOrigin: `${SIZE - DIAL_RIGHT - h / 2}px ${SIZE + DIAL_LIFT + h / 2}px` }}
+      style={{ touchAction: "none", width: SIZE, height: SIZE, [side]: -DIAL_RIGHT, bottom: `calc(100% + ${DIAL_LIFT}px)`, transformOrigin: `${side === "right" ? SIZE - DIAL_RIGHT - h / 2 : DIAL_RIGHT + h / 2}px ${SIZE + DIAL_LIFT + h / 2}px` }}
       className="absolute z-50 touch-none rounded-full text-white"
       role="menu"
       aria-label="View as"
