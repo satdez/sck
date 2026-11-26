@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, ChevronUp, Landmark, RotateCcw, UserRound } from "lucide-react";
+import { Building2, ChevronUp, Landmark, RotateCcw, SlidersHorizontal, UserRound } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type MutableRefObject, type PointerEvent as ReactPointerEvent } from "react";
@@ -80,6 +80,10 @@ export function RoleSwitch() {
     setOpen(false);
     router.push(homeFor(r));
   };
+  const prefs = () => {
+    setOpen(false);
+    router.push("/preferences");
+  };
   const reset = () => {
     resetDemo();
     setOpen(false);
@@ -120,14 +124,18 @@ export function RoleSwitch() {
     <div
       ref={ref}
       data-tucked={(tucked && !open) || undefined}
-      className="fixed right-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 transition-[translate,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-tucked:pointer-events-none data-tucked:translate-x-[calc(100%+16px)] data-tucked:opacity-0 md:right-5 md:bottom-5 md:data-tucked:pointer-events-auto md:data-tucked:translate-x-0 md:data-tucked:opacity-100"
+      // a press-and-hold is how you drive the dial: keep the phone's long-press menu and text selection out of it,
+      // or the browser takes over the touch (pointercancel) before the thumb starts to slide
+      onContextMenu={(e) => e.preventDefault()}
+      style={{ WebkitTouchCallout: "none", touchAction: "none" }}
+      className="fixed right-3 select-none bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 transition-[translate,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-tucked:pointer-events-none data-tucked:translate-x-[calc(100%+16px)] data-tucked:opacity-0 md:right-5 md:bottom-5 md:data-tucked:pointer-events-auto md:data-tucked:translate-x-0 md:data-tucked:opacity-100"
     >
-      <GooFilter />
       <AnimatePresence>{open && <Blob w={box.w} h={box.h} />}</AnimatePresence>
-      <AnimatePresence>{open && <Dial role={role} brandName={brandName} onPick={pick} onReset={reset} dragRef={drag} />}</AnimatePresence>
+      <AnimatePresence>{open && <Dial role={role} brandName={brandName} onPick={pick} onReset={reset} onPrefs={prefs} dragRef={drag} h={box.h} />}</AnimatePresence>
       <button
         ref={btn}
         type="button"
+        style={{ touchAction: "none" }}
         onPointerDown={onTriggerDown}
         onClick={() => {
           // the press already opened it; a plain click on an open dial closes it
@@ -153,77 +161,81 @@ export function RoleSwitch() {
 /* ───────────── the dial ───────────── */
 
 /*
- * One module, not a menu over a button: the dial, a neck and a ring round the trigger are drawn as plain
- * shapes in one layer and melted together by an SVG "goo" filter (blur, then a hard alpha threshold), so
- * they read as a single teardrop that grows out of the button. The dial's icons and text sit on top, crisp.
+ * One module, not a menu over a button. The dial's disc and the collar round the trigger are joined by a
+ * metaball bridge: two curves that leave each circle on its tangent and meet in a smooth waist, so the
+ * dial seems to pour out of the button. One SVG, grown from the button's centre, then the dial's
+ * icons and text sit on top, crisp.
  */
 const DIAL_RIGHT = 6; // the dial overhangs the trigger's right edge by this much
 const DIAL_LIFT = 14; // gap between the trigger's top and the dial's bottom
 const RING = 6; // dark collar round the trigger
-const ORIGIN = "85% 100%";
 const GROW = { type: "spring", stiffness: 360, damping: 30 } as const;
 const INK = "#0f0f0f";
 
-function GooFilter() {
-  return (
-    <svg aria-hidden width="0" height="0" className="absolute">
-      <defs>
-        <filter id="solo-goo" x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
-          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo" />
-          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-        </filter>
-      </defs>
-    </svg>
-  );
+type P = [number, number];
+const at = (c: P, a: number, r: number): P => [c[0] + r * Math.cos(a), c[1] + r * Math.sin(a)];
+const pt = (q: P) => `${q[0].toFixed(2)} ${q[1].toFixed(2)}`;
+
+/** The bridge between two circles, after Varun Vachhar's metaball construction. `v` sets how far the waist pinches. */
+function bridge(c1: P, r1: number, c2: P, r2: number, v = 0.55, handle = 2.4) {
+  const d = Math.hypot(c2[0] - c1[0], c2[1] - c1[1]);
+  if (d <= Math.abs(r1 - r2)) return "";
+  const u1 = d < r1 + r2 ? Math.acos((r1 * r1 + d * d - r2 * r2) / (2 * r1 * d)) : 0;
+  const u2 = d < r1 + r2 ? Math.acos((r2 * r2 + d * d - r1 * r1) / (2 * r2 * d)) : 0;
+  const base = Math.atan2(c2[1] - c1[1], c2[0] - c1[0]);
+  const spread = Math.acos(Math.max(-1, Math.min(1, (r1 - r2) / d)));
+  const a1 = base + u1 + (spread - u1) * v;
+  const a2 = base - u1 - (spread - u1) * v;
+  const a3 = base + Math.PI - u2 - (Math.PI - u2 - spread) * v;
+  const a4 = base - Math.PI + u2 + (Math.PI - u2 - spread) * v;
+  const p1 = at(c1, a1, r1), p2 = at(c1, a2, r1), p3 = at(c2, a3, r2), p4 = at(c2, a4, r2);
+  const k = Math.min(v * handle, Math.hypot(p1[0] - p3[0], p1[1] - p3[1]) / (r1 + r2)) * Math.min(1, (d * 2) / (r1 + r2));
+  const h1 = at(p1, a1 - Math.PI / 2, r1 * k), h2 = at(p2, a2 + Math.PI / 2, r1 * k);
+  const h3 = at(p3, a3 + Math.PI / 2, r2 * k), h4 = at(p4, a4 - Math.PI / 2, r2 * k);
+  return `M${pt(p1)} C${pt(h1)} ${pt(h3)} ${pt(p3)} A${r2} ${r2} 0 ${d > r1 ? 1 : 0} 0 ${pt(p4)} C${pt(h4)} ${pt(h2)} ${pt(p2)}Z`;
 }
 
 function Blob({ w, h }: { w: number; h: number }) {
-  // the neck runs from the trigger's right-hand cap to the dial's centre
-  const ax = h / 2; // from the wrapper's right edge
-  const ay = h / 2; // from its bottom edge
-  const dx = SIZE / 2 - DIAL_RIGHT - ax; // leftwards
-  const dy = h + DIAL_LIFT + SIZE / 2 - ay; // upwards
-  const len = Math.hypot(dx, dy);
-  const deg = (Math.atan2(dy, dx) * 180) / Math.PI;
-  const PAD = 40; // room round the shapes so the filter never clips them
+  const PAD = 30; // room for the shadow
+  const W = SIZE + PAD * 2;
+  const H = h + DIAL_LIFT + SIZE + PAD * 2;
+  // the trigger's right-hand cap and the dial's centre, in the svg's own coordinates
+  const cap: P = [W - PAD - h / 2, H - PAD - h / 2];
+  const dial: P = [W - PAD + DIAL_RIGHT - SIZE / 2, H - PAD - h - DIAL_LIFT - SIZE / 2];
+  const rCap = h / 2 + RING;
+  const collar = { x: W - PAD - w - RING, y: H - PAD - h - RING, w: w + RING * 2, h: h + RING * 2 };
+  const shape = (
+    <>
+      <circle cx={dial[0]} cy={dial[1]} r={SIZE / 2} />
+      <rect x={collar.x} y={collar.y} width={collar.w} height={collar.h} rx={collar.h / 2} />
+      <path d={bridge(dial, SIZE / 2, cap, rCap)} />
+    </>
+  );
   return (
-    <motion.div
+    <motion.svg
       aria-hidden
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.14 } }}
-      className="pointer-events-none absolute z-40"
-      style={{ right: -PAD, bottom: -PAD, width: SIZE + 2 * PAD, height: h + DIAL_LIFT + SIZE + 2 * PAD, filter: "url(#solo-goo) drop-shadow(0 26px 40px rgb(0 0 0 / 0.55))" }}
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      className="pointer-events-none absolute z-40 overflow-visible"
+      style={{ right: -PAD, bottom: -PAD, transformOrigin: `${cap[0]}px ${cap[1]}px`, filter: "drop-shadow(0 26px 40px rgb(0 0 0 / 0.55))" }}
+      initial={{ scale: 0.2, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.4, opacity: 0, transition: { duration: 0.16 } }}
+      transition={GROW}
     >
-      {/* the collar round the trigger */}
-      <motion.span
-        initial={{ scale: 0.6 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.8 }}
-        transition={GROW}
-        className="absolute rounded-full"
-        style={{ right: PAD - RING, bottom: PAD - RING, width: w + RING * 2, height: h + RING * 2, background: INK }}
-      />
-      {/* the neck */}
-      <motion.span
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        exit={{ scaleX: 0 }}
-        transition={GROW}
-        className="absolute rounded-full"
-        style={{ right: PAD + ax, bottom: PAD + ay - 30, width: len, height: 60, background: INK, transformOrigin: "100% 50%", rotate: deg }}
-      />
-      {/* the dial's disc: same box, origin and spring as the dial, so they move as one */}
-      <motion.span
-        initial={{ scale: 0.55 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.7 }}
-        transition={GROW}
-        className="absolute rounded-full"
-        style={{ right: PAD - DIAL_RIGHT, bottom: PAD + h + DIAL_LIFT, width: SIZE, height: SIZE, background: INK, transformOrigin: ORIGIN }}
-      />
-    </motion.div>
+      <defs>
+        {/* the union of the three shapes, used to draw one hairline round the whole module */}
+        <mask id="solo-dial-in">
+          <rect width={W} height={H} fill="#fff" />
+          <g fill="#000">{shape}</g>
+        </mask>
+      </defs>
+      <g fill="rgb(255 255 255 / 0.1)" stroke="rgb(255 255 255 / 0.1)" strokeWidth={2} mask="url(#solo-dial-in)">
+        {shape}
+      </g>
+      <g fill={INK}>{shape}</g>
+    </motion.svg>
   );
 }
 
@@ -232,7 +244,7 @@ const C = SIZE / 2;
 const R_IN = 50;
 const R_OUT = C - 2;
 const R_ITEM = (R_IN + R_OUT) / 2 + 2;
-const SPAN = 32; // half-width of a wedge, degrees
+const SPAN = 30; // half-width of a wedge, degrees
 
 const polar = (deg: number, r: number) => {
   const a = (deg * Math.PI) / 180;
@@ -254,16 +266,17 @@ const ARC = (() => {
   return `M${f(x1)} ${f(y1)} A${r} ${r} 0 0 1 ${f(x2)} ${f(y2)}`;
 })();
 
-type Slot = { id: Role | "reset"; angle: number; label: string; hint: string; icon: typeof UserRound };
+type Slot = { id: Role | "prefs" | "reset"; angle: number; label: string; hint: string; icon: typeof UserRound };
 type DialDrag = { move: (x: number, y: number) => void; up: (x: number, y: number) => void };
 
 /** shortest way round: 350 to 10 degrees turns 20, not 340 */
 const nearest = (from: number, to: number) => from + ((((to - from) % 360) + 540) % 360) - 180;
 
-function Dial({ role, brandName, onPick, onReset, dragRef }: { role: Role; brandName: string; onPick: (r: Role) => void; onReset: () => void; dragRef: MutableRefObject<DialDrag | null> }) {
+function Dial({ role, brandName, onPick, onReset, onPrefs, dragRef, h }: { role: Role; brandName: string; onPick: (r: Role) => void; onReset: () => void; onPrefs: () => void; dragRef: MutableRefObject<DialDrag | null>; h: number }) {
   const slots: Slot[] = [
-    ...ROLES.map((r, i) => ({ id: r.role, angle: [0, 90, 180][i], label: r.label, hint: r.role === "brand" ? brandName : r.hint, icon: r.icon })),
-    { id: "reset", angle: 270, label: "Reset demo", hint: "start the story over", icon: RotateCcw },
+    ...ROLES.map((r, i) => ({ id: r.role, angle: i * 72, label: r.label, hint: r.role === "brand" ? brandName : r.hint, icon: r.icon })),
+    { id: "prefs", angle: 216, label: "Preferences", hint: "theme, colour, type", icon: SlidersHorizontal },
+    { id: "reset", angle: 288, label: "Reset demo", hint: "start the story over", icon: RotateCcw },
   ];
   const active = slots.find((x) => x.id === role)!;
   const [hover, setHover] = useState<Slot | null>(null);
@@ -287,6 +300,7 @@ function Dial({ role, brandName, onPick, onReset, dragRef }: { role: Role; brand
   const activate = (x: Slot) => {
     haptic("pick");
     if (x.id === "reset") onReset();
+    else if (x.id === "prefs") onPrefs();
     else onPick(x.id);
   };
 
@@ -329,11 +343,11 @@ function Dial({ role, brandName, onPick, onReset, dragRef }: { role: Role; brand
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.55, rotate: -24 }}
+      initial={{ opacity: 0, scale: 0.2, rotate: -18 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
-      exit={{ opacity: 0, scale: 0.7, rotate: -10, transition: { duration: 0.14 } }}
+      exit={{ opacity: 0, scale: 0.4, rotate: -8, transition: { duration: 0.16 } }}
       transition={GROW}
-      style={{ width: SIZE, height: SIZE, right: -DIAL_RIGHT, bottom: `calc(100% + ${DIAL_LIFT}px)`, transformOrigin: ORIGIN }}
+      style={{ touchAction: "none", width: SIZE, height: SIZE, right: -DIAL_RIGHT, bottom: `calc(100% + ${DIAL_LIFT}px)`, transformOrigin: `${SIZE - DIAL_RIGHT - h / 2}px ${SIZE + DIAL_LIFT + h / 2}px` }}
       className="absolute z-50 touch-none rounded-full text-white"
       role="menu"
       aria-label="View as"

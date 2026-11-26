@@ -12,7 +12,7 @@ import type { Portfolio } from "./types";
  */
 const DIR = path.join(process.cwd(), "data", "pages");
 
-export const RESERVED = new Set(["kit", "inbox", "brand", "editor", "api", "www", "app", "admin", "solo", "help", "login", "logo", "hero-render"]);
+export const RESERVED = new Set(["kit", "inbox", "brand", "editor", "api", "www", "app", "admin", "solo", "help", "login", "logo", "hero-render", "preferences"]);
 
 export function normalizeSlug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 30);

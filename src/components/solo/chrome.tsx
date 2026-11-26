@@ -46,9 +46,12 @@ export function ChromePrefs() {
     const onStorage = (e: StorageEvent) => e.key?.startsWith("sck.ui") && apply();
     mq.addEventListener("change", apply);
     window.addEventListener("storage", onStorage);
+    // same-tab changes from the Preferences page
+    window.addEventListener("sck-ui-prefs", apply);
     return () => {
       mq.removeEventListener("change", apply);
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener("sck-ui-prefs", apply);
       keys.forEach((k) => root.style.removeProperty(k));
       root.style.colorScheme = "";
       root.classList.remove("ed");
